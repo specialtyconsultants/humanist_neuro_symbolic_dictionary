@@ -1,0 +1,7 @@
+# Warrant templates: claim |- principle. Balancing stays explicit/inspectable.
+warrants:
+  - claim: valid_consent
+    principle: autonomy
+  - claim: least_restrictive_means
+    principle: non_maleficence
+    balancing_note: balance restricted autonomy against imminent-harm prevention

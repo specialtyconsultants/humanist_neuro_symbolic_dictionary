@@ -1,0 +1,8 @@
+logograms:
+  loan: {form: coin-stack, peirce: symbol}
+  harvest: {form: wheat-sheaf, peirce: icon}
+superfixes:
+  debt_is_burden: {form: down-weight, peirce: symbol, metaphor: ontological}
+subfixes:
+  solvency_shield: {form: shield, peirce: symbol, principle: solvency_protection}
+  disclosure: {form: eye-open, peirce: symbol, principle: disclosure}

@@ -1,0 +1,11 @@
+# Grounding world model: Beauchamp & Childress four principles.
+# These form a HARD FLOOR (analogous to LeCun's immutable Intrinsic Cost).
+principles:
+  - id: autonomy
+    label: Respect for autonomy
+  - id: non_maleficence
+    label: Non-maleficence
+  - id: beneficence
+    label: Beneficence
+  - id: justice
+    label: Justice

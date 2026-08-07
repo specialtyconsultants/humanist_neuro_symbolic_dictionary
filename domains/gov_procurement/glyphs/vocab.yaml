@@ -1,0 +1,8 @@
+logograms:
+  solicitation: {form: scroll, peirce: symbol}
+  bidder: {form: hand-raised, peirce: index}
+superfixes:
+  contest_frame: {form: crossed-flags, peirce: symbol, metaphor: structural}
+subfixes:
+  transparency: {form: eye-open, peirce: symbol, principle: transparency}
+  coi_flag: {form: split-circle, peirce: symbol, principle: coi_avoidance}

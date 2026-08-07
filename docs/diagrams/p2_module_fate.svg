@@ -1,0 +1,54 @@
+<svg width="100%" viewBox="0 0 680 300" role="img" xmlns="http://www.w3.org/2000/svg">
+<title>Proposal 2: JEPA encoder plus symbolic reasoner</title>
+<desc>Perception stays a JEPA encoder; world model, cost and memory become symbolic dictionary structures; the actor is dropped. Kautz Type-3 neuro-symbolic split.</desc>
+<style>
+.t{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;font-weight:500;}
+.ts{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:12px;}
+.teal-f{fill:#E1F5EE;stroke:#0F6E56;}
+.teal-t{fill:#085041;} .teal-s{fill:#0F6E56;}
+.pur-f{fill:#EEEDFE;stroke:#534AB7;}
+.pur-t{fill:#3C3489;} .pur-s{fill:#534AB7;}
+.gray-f{fill:#F1EFE8;stroke:#888780;}
+.gray-t{fill:#444441;} .gray-s{fill:#5F5E5A;}
+.leg{fill:#5F5E5A;}
+@media (prefers-color-scheme:dark){
+.teal-f{fill:#085041;stroke:#5DCAA5;} .teal-t{fill:#9FE1CB;} .teal-s{fill:#5DCAA5;}
+.pur-f{fill:#3C3489;stroke:#AFA9EC;} .pur-t{fill:#CECBF6;} .pur-s{fill:#AFA9EC;}
+.gray-f{fill:#2C2C2A;stroke:#B4B2A9;} .gray-t{fill:#D3D1C7;} .gray-s{fill:#B4B2A9;}
+.leg{fill:#c2c0b6;}
+}
+</style>
+
+<rect x="50" y="40" width="12" height="12" rx="3" class="teal-f" stroke-width="0.5"/>
+<text class="ts leg" x="70" y="50" dominant-baseline="central">JEPA / neural</text>
+<rect x="180" y="40" width="12" height="12" rx="3" class="pur-f" stroke-width="0.5"/>
+<text class="ts leg" x="200" y="50" dominant-baseline="central">Symbolic dictionary</text>
+<rect x="340" y="40" width="12" height="12" rx="3" class="gray-f" stroke-width="0.5" stroke-dasharray="3 3"/>
+<text class="ts leg" x="360" y="50" dominant-baseline="central">Dropped</text>
+
+<rect x="50" y="72" width="180" height="62" rx="8" class="pur-f" stroke-width="0.5"/>
+<text class="t pur-t" x="140" y="96" text-anchor="middle" dominant-baseline="central">Configurator</text>
+<text class="ts pur-s" x="140" y="116" text-anchor="middle" dominant-baseline="central">Reduced to static</text>
+
+<rect x="250" y="72" width="180" height="62" rx="8" class="teal-f" stroke-width="0.5"/>
+<text class="t teal-t" x="340" y="96" text-anchor="middle" dominant-baseline="central">Perception</text>
+<text class="ts teal-s" x="340" y="116" text-anchor="middle" dominant-baseline="central">JEPA encoder, type G</text>
+
+<rect x="450" y="72" width="180" height="62" rx="8" class="pur-f" stroke-width="0.5"/>
+<text class="t pur-t" x="540" y="96" text-anchor="middle" dominant-baseline="central">World model</text>
+<text class="ts pur-s" x="540" y="116" text-anchor="middle" dominant-baseline="central">Type C SCM only</text>
+
+<rect x="50" y="162" width="180" height="62" rx="8" class="pur-f" stroke-width="0.5"/>
+<text class="t pur-t" x="140" y="186" text-anchor="middle" dominant-baseline="central">Short-term memory</text>
+<text class="ts pur-s" x="140" y="206" text-anchor="middle" dominant-baseline="central">Dictionary slots</text>
+
+<rect x="250" y="162" width="180" height="62" rx="8" class="pur-f" stroke-width="0.5"/>
+<text class="t pur-t" x="340" y="186" text-anchor="middle" dominant-baseline="central">Cost</text>
+<text class="ts pur-s" x="340" y="206" text-anchor="middle" dominant-baseline="central">Type E filter, no critic</text>
+
+<rect x="450" y="162" width="180" height="62" rx="8" class="gray-f" stroke-width="0.5" stroke-dasharray="4 4"/>
+<text class="t gray-t" x="540" y="186" text-anchor="middle" dominant-baseline="central">Actor</text>
+<text class="ts gray-s" x="540" y="206" text-anchor="middle" dominant-baseline="central">Advises, never acts</text>
+
+<text class="ts leg" x="340" y="256" text-anchor="middle">Kautz type 3: JEPA grounds, symbols reason and audit</text>
+</svg>

@@ -1,0 +1,7 @@
+# Grounding world model for public procurement integrity.
+principles:
+  - {id: open_competition, label: Open competition}
+  - {id: fair_treatment, label: Equal and fair treatment of bidders}
+  - {id: transparency, label: Transparency}
+  - {id: coi_avoidance, label: Conflict-of-interest avoidance}
+  - {id: best_value_integrity, label: Best-value integrity}

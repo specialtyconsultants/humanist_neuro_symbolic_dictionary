@@ -1,0 +1,5 @@
+warrants:
+  - {claim: apr_within_cap, principle: non_predatory}
+  - {claim: repayment_matched_to_harvest, principle: solvency_protection,
+     balancing_note: balance lender risk against seasonal cashflow reality}
+  - {claim: plain_language_terms, principle: disclosure}

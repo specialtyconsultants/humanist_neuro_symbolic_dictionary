@@ -1,0 +1,5 @@
+warrants:
+  - {claim: unrestricted_solicitation, principle: open_competition}
+  - {claim: disclosed_evaluation_criteria, principle: transparency}
+  - {claim: recused_evaluator, principle: coi_avoidance,
+     balancing_note: balance evaluator expertise against appearance of bias}

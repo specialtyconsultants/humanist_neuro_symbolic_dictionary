@@ -1,0 +1,8 @@
+logograms:
+  patient: {form: patient-figure, peirce: icon}
+  document: {form: document, peirce: icon}
+superfixes:            # metaphor-type markers
+  risk_is_up: {form: up-arrow, peirce: symbol, metaphor: orientational}
+subfixes:              # norm-polarity "phonetic complements"
+  protective_duty: {form: shield, peirce: symbol, principle: non_maleficence}
+  autonomy: {form: open-circle, peirce: symbol, principle: autonomy}

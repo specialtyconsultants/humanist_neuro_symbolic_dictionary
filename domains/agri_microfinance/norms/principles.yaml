@@ -1,0 +1,7 @@
+# Grounding world model for smallholder agriculture microfinance.
+principles:
+  - {id: contract_fairness, label: Contract fairness}
+  - {id: non_predatory, label: Non-predatory terms}
+  - {id: solvency_protection, label: Borrower solvency protection}
+  - {id: disclosure, label: Full disclosure of terms}
+  - {id: proportionate_recourse, label: Proportionate recourse on default}

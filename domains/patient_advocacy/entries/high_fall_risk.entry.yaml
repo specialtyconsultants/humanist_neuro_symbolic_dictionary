@@ -1,0 +1,22 @@
+id: pad:high_fall_risk
+lemma: high fall risk
+domain: patient_advocacy
+domain_sense: elevated probability that a patient will fall and be injured
+grounding:
+  conceptual_region: [risk, voluntariness]
+  glyphs:
+    - {form: falling-figure, peirce: icon, role: logogram}
+    - {form: hazard-triangle, peirce: symbol, role: logogram}
+causal:
+  edges:
+    - {cause: sedation, relation: increases, effect: fall_probability, confidence: 0.7, provenance: cohort_study#9}
+    - {cause: fall_probability, relation: causes, effect: injury, confidence: 0.6, provenance: registry#3}
+  interventions: ["do(bed_alarm) lowers injury"]
+ethics:
+  principle_polarity: {non_maleficence: "+", autonomy: "-"}
+  warrants:
+    - {claim: least_restrictive_means, principle: non_maleficence}
+  balancing_note: non-maleficence(+) vs autonomy(-) via least-restrictive-means
+svo: {subject: sedation, verb: increases, obj: fall_probability, derived_from: cohort_study#9}
+glyph_block: {logogram: patient, superfix: risk_is_up, subfix: protective_duty}
+metaphor_type: "orientational (MORE IS UP)"
