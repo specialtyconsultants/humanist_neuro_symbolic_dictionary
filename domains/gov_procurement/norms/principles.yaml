@@ -1,7 +1,35 @@
 # Grounding world model for public procurement integrity.
+#
+# ORIGINAL FIVE (unchanged) — these govern the RELATION BETWEEN THE BODY AND
+# ITS BIDDERS. They are sufficient for entries about the award process.
+#
+# PROPOSED SIX (marked `proposed: true`) — every Interstate solicitation
+# category buys a system that acts on RESIDENTS, not on bidders. No principle
+# in the original five is violated when a resident-service assistant tells a
+# landlord they may refuse a housing voucher: competition was open, treatment
+# of bidders was fair, criteria were disclosed, no evaluator was conflicted,
+# and the price was good. The harm has nowhere to land. That is a gap in the
+# world model, not a tolerable omission — asked to score that deployment, the
+# norms engine returns "permissible" and is not wrong under the five.
 principles:
-  - {id: open_competition, label: Open competition}
-  - {id: fair_treatment, label: Equal and fair treatment of bidders}
-  - {id: transparency, label: Transparency}
-  - {id: coi_avoidance, label: Conflict-of-interest avoidance}
-  - {id: best_value_integrity, label: Best-value integrity}
+  - {id: open_competition,      label: Open competition}
+  - {id: fair_treatment,        label: Equal and fair treatment of bidders}
+  - {id: transparency,          label: Transparency}
+  - {id: coi_avoidance,         label: Conflict-of-interest avoidance}
+  - {id: best_value_integrity,  label: Best-value integrity}
+
+  # --- proposed: the resident-facing stratum --------------------------------
+  - {id: resident_non_maleficence, proposed: true,
+     label: The procured system must not injure the resident it serves}
+  - {id: due_process, proposed: true,
+     label: A person subject to an adverse action can contest it before a human
+            who can reverse it, and before the deprivation takes effect}
+  - {id: non_discrimination, proposed: true,
+     label: No disparate adverse impact across protected or under-served classes}
+  - {id: meaningful_access, proposed: true,
+     label: Service is usable in the language the resident actually speaks,
+            and with disability}
+  - {id: data_sovereignty, proposed: true,
+     label: Resident data is not appropriated for vendor benefit}
+  - {id: continuity_of_public_capacity, proposed: true,
+     label: The body retains the ability to perform the function without the vendor}

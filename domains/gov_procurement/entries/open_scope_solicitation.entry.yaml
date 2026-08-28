@@ -1,0 +1,91 @@
+# INTERSTATE CAT-09 · Custom — define your own ("A blank instrument.")
+# Instance: the CAT-09 path itself. Second instance, and the site's own: the
+#   footer disclosure that "depending on the type of application you are
+#   soliciting bids for, the vendors may not be including such elements" —
+#   bias analysis, neuro-symbolic world-model participation — "in the
+#   architecture they are quoting."
+#
+# This is the reflexive entry. Its subject is the act of soliciting, not a
+# deployed system, so it is the only one in the seed whose polarity lands
+# mostly on the original five principles.
+id: gpr:open_scope_solicitation
+lemma: open-scope solicitation
+domain: gov_procurement
+domain_sense: >
+  a notice that states a problem rather than a specification, thereby
+  transferring the authority to define the requirement from the buyer to the
+  bidder, at the moment the price is being fixed
+status: ratified
+grounding:
+  conceptual_region: [specificity, competition_openness, disclosure]
+  glyphs:
+    - {form: empty-frame, peirce: icon,   role: logogram}
+    - {form: scroll,      peirce: symbol, role: logogram}
+causal:
+  # Under-specification does not remove requirements. It relocates who sets
+  # them, and it relocates them to the party whose interest in setting them
+  # cheaply is largest. The consequence is a lemons market in architecture:
+  # an unnamed property is not merely unrequired, it is PRICED OUT, because the
+  # bidder who includes it competes on price against the bidder who does not,
+  # and the evaluation panel cannot see the difference in a proposal it did not
+  # ask for. So open_competition and best_value_integrity, which normally point
+  # the same way, come apart here — the more open the scope, the more sharply
+  # the competition selects against unpriced quality.
+  # That is the formal version of the site's own footer warning, and it means
+  # the six terms in §3 are not governance decoration on a CAT-09 notice. They
+  # are the entire specification. Everything else in the instrument is prose.
+  edges:
+    - {cause: open_scope_solicitation, relation: causes,
+       effect: specification_authority_transferred_to_bidder, confidence: 0.90,
+       provenance: "interstate:cat09#blank_instrument"}
+    - {cause: specification_authority_transferred_to_bidder, relation: enables,
+       effect: unnamed_architectural_property_omitted, confidence: 0.85,
+       provenance: "interstate:footer#vendor_architecture_disclosure"}
+    - {cause: price_competition_on_unspecified_scope, relation: causes,
+       effect: unnamed_architectural_property_omitted, confidence: 0.80,
+       provenance: "inferred:adverse_selection#economic"}
+    - {cause: unnamed_architectural_property_omitted, relation: prevents,
+       effect: post_award_remedy, confidence: 0.85,
+       provenance: "inferred:contract_scope#structural"}
+    - {cause: open_scope_solicitation, relation: increases,
+       effect: bidder_pool_breadth, confidence: 0.75,
+       provenance: "inferred:market_response#needs_grounding"}
+    - {cause: selected_governance_terms, relation: prevents,
+       effect: unnamed_architectural_property_omitted, confidence: 0.70,
+       provenance: "interstate:s3#binding_requirements"}
+  interventions:
+    - "do(name_required_architectural_properties_as_clins) removes unnamed_architectural_property_omitted"
+    - "do(select_all_governance_terms) lowers unnamed_architectural_property_omitted"
+    - "do(two_stage_solicitation_rfi_then_rfp) lowers specification_authority_transferred_to_bidder"
+ethics:
+  principle_polarity: {open_competition: "+", best_value_integrity: "-",
+                       transparency: "-", continuity_of_public_capacity: "-"}
+  warrants:
+    - {claim: unrestricted_solicitation,   principle: open_competition}
+    - {claim: disclosed_evaluation_criteria, principle: transparency}
+    - {claim: exit_ready_no_lock_in, principle: continuity_of_public_capacity}
+  balancing_note: >
+    open competition is genuinely served — a small vendor with an unusual
+    approach can bid against an incumbent, which a tightly-specified notice
+    forecloses, and that is the honest case for the blank instrument. The cost
+    is that `disclosed_evaluation_criteria` cannot be fully discharged on an
+    open scope: criteria for a system nobody has specified are necessarily
+    criteria about the vendor rather than about the thing, which is how
+    incumbency re-enters through the door that openness opened.
+    continuity_of_public_capacity is negative by default and recoverable by
+    selection: a body that cannot state what it is buying cannot state what it
+    would need to run without the vendor, so exit-readiness has to be demanded
+    abstractly, before there is anything concrete to be exit-ready from.
+    The practical reading for a procurement officer: on CAT-09, treat §3 as
+    §2. It is the only part of the notice that survives contact with a bid.
+svo:
+  subject: open_scope_solicitation
+  verb: causes
+  obj: specification_authority_transferred_to_bidder
+  derived_from: "interstate:cat09#blank_instrument"
+glyph_block:
+  logogram: empty_frame
+  superfix: contest_frame
+  subfix: open_competition
+metaphor_type: "structural (A SPECIFICATION IS A CONTAINER — CAT-09 ships the container empty and the bidder fills it)"
+provenance: "interstate:cat09"

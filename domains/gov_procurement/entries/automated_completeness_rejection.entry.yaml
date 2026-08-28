@@ -1,0 +1,85 @@
+# INTERSTATE CAT-08 · Permitting & case workflow
+# Instances: automated completeness checking at permit and licence intake — the
+#   category's stated promise is cycle time "measured today in weeks down to
+#   days." Second instance, and the grounding for the mechanism: the Medicaid
+#   unwinding of 2023-24, where the large majority of disenrollments nationally
+#   were PROCEDURAL — paperwork, not a finding of ineligibility. Same shape: an
+#   exit at the intake stage that never becomes an adjudicated decision.
+id: gpr:automated_completeness_rejection
+lemma: automated completeness rejection
+domain: gov_procurement
+domain_sense: >
+  an application returned as incomplete by an automated intake check, producing
+  no adjudicated decision, no appealable record, and no entry in the
+  cycle-time statistic the system was procured to improve
+status: provisional          # bridge edge below is inferred; see confidence 0.50
+grounding:
+  conceptual_region: [specificity, access, reversibility]
+  glyphs:
+    - {form: gate-bar, peirce: symbol, role: logogram}
+    - {form: scroll,   peirce: symbol, role: logogram}
+causal:
+  # THIS IS A MEASUREMENT-VALIDITY ENTRY, and it is the most directly actionable
+  # one in the seed because the fix is a sentence in the solicitation.
+  # The KPI that justifies the purchase — median days from application to
+  # decision — is computed over ADJUDICATED applications. A rejection at intake
+  # removes the case from the denominator. So the system can improve its
+  # headline metric by increasing the harm it was bought to reduce, with no
+  # deception by anyone: the number is correct, the vendor reports it honestly,
+  # the council sees weeks become days, and the applicants who were turned away
+  # at the door are not in the dataset at any point in the chain.
+  # Specify the metric over SUBMISSIONS rather than adjudications and the
+  # incentive inverts cleanly. That is the whole intervention.
+  edges:
+    - {cause: cycle_time_measured_over_adjudications, relation: enables,
+       effect: metric_improvement_by_denominator_exclusion, confidence: 0.85,
+       provenance: "inferred:metric_definition#structural"}
+    - {cause: automated_completeness_rejection, relation: prevents,
+       effect: adjudicated_decision, confidence: 0.90,
+       provenance: "inferred:intake_semantics#structural"}
+    - {cause: absent_adjudicated_decision, relation: prevents,
+       effect: informed_recourse, confidence: 0.85,
+       provenance: "inferred:appeal_predicate#structural"}
+    - {cause: automated_completeness_rejection, relation: increases,
+       effect: applicant_abandonment, confidence: 0.50,
+       provenance: "inferred:bridge_from_procedural_disenrollment#needs_grounding"}
+    # ^ deliberately weak. The Medicaid unwinding establishes that procedural
+    #   exits dominate where paperwork gates a benefit, but a Medicaid renewal
+    #   and a building permit differ in who bears the delay and how badly. The
+    #   analogy is suggestive and is not licensed to carry the argument, so it
+    #   does not. Highest-value grounding target in this entry.
+    - {cause: automated_completeness_rejection, relation: prevents,
+       effect: reviewer_time_lost_to_defective_files, confidence: 0.80,
+       provenance: "inferred:triage_benefit#structural"}
+  interventions:
+    - "do(measure_cycle_time_over_submissions) removes metric_improvement_by_denominator_exclusion"
+    - "do(issue_appealable_decision_on_every_rejection) enables informed_recourse"
+    - "do(cure_period_with_assisted_completion) lowers applicant_abandonment"
+ethics:
+  principle_polarity: {due_process: "-", meaningful_access: "-",
+                       best_value_integrity: "+/-"}
+  warrants:
+    - {claim: appealable_intake_decision, principle: due_process}   # source: proposed
+  balancing_note: >
+    completeness checking is genuinely good for applicants: being told at
+    submission that a form is missing a signature beats learning it nine weeks
+    later, and the reviewer time freed is time returned to substantive review.
+    Nothing here argues against the category. The defect is that the benefit and
+    the harm are separated by WHO can respond to a rejection — an applicant with
+    an expediter fixes it in an afternoon, an applicant without one is done. So
+    the same feature is a convenience at one end of the income distribution and
+    a denial at the other, and the metric records only the convenience.
+    best_value_integrity is mixed rather than negative because the council
+    genuinely receives what it paid for. That is precisely the problem: the
+    instrument is sound, the delivery is honest, and the measure is invalid.
+svo:
+  subject: automated_completeness_rejection
+  verb: prevents
+  obj: adjudicated_decision
+  derived_from: "inferred:intake_semantics#structural"
+glyph_block:
+  logogram: gate
+  superfix: fast_is_forward
+  subfix: due_process
+metaphor_type: "orientational (FASTER IS BETTER) — measured on a path the harmed applicant never enters"
+provenance: "inferred:cat08_analysis"
