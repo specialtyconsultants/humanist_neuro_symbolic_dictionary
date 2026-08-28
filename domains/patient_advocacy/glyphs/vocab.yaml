@@ -1,8 +1,15 @@
 logograms:
   patient: {form: patient-figure, peirce: icon}
   document: {form: document, peirce: icon}
+  # --- already in use by entries but previously undeclared ---
+  falling_figure: {form: falling-figure, peirce: icon}
+  hazard: {form: hazard-triangle, peirce: symbol}
+  # --- new ---
+  severed_link: {form: severed-link, peirce: index}   # broken causal/communicative chain
+  vial_pair: {form: vial-pair, peirce: icon}          # two containers, confusable
 superfixes:            # metaphor-type markers
   risk_is_up: {form: up-arrow, peirce: symbol, metaphor: orientational}
+  link_is_broken: {form: broken-chain, peirce: index, metaphor: structural}
 subfixes:              # norm-polarity "phonetic complements"
   protective_duty: {form: shield, peirce: symbol, principle: non_maleficence}
   autonomy: {form: open-circle, peirce: symbol, principle: autonomy}

@@ -22,6 +22,18 @@ class Polarity(str, Enum):
     MIXED = "+/-"
 
 
+class Status(str, Enum):
+    """Epistemic standing of an entry.
+
+    Only RATIFIED entries may contribute to institution-level aggregation.
+    PROVISIONAL marks an entry whose evidence is live (open investigation) or
+    whose ethics footnote has no matching warrant yet; it must be re-checked.
+    """
+    PROVISIONAL = "provisional"
+    RATIFIED = "ratified"
+    RETIRED = "retired"
+
+
 # ---- Type G: Grounding footnote --------------------------------------------
 @dataclass
 class Glyph:
@@ -95,6 +107,7 @@ class Entry:
     lemma: str
     domain: str
     domain_sense: str
+    status: Status = Status.PROVISIONAL
     conceptual_space_vector: dict[str, float] = field(default_factory=dict)
     neural_embedding: list[float] = field(default_factory=list)
     grounding: GroundingFootnote | None = None

@@ -5,3 +5,13 @@ warrants:
   - claim: least_restrictive_means
     principle: non_maleficence
     balancing_note: balance restricted autonomy against imminent-harm prevention
+  - claim: duty_to_communicate_results
+    principle: non_maleficence
+    balancing_note: >
+      no counterweight recognised — a generated result the clinician has seen
+      but the patient has not is a pure information asymmetry, not a trade-off
+  - claim: informed_of_own_results
+    principle: autonomy
+    balancing_note: >
+      self-advocacy is impossible without access to one's own diagnostic
+      record; withholding forecloses the patient's capacity to act at all

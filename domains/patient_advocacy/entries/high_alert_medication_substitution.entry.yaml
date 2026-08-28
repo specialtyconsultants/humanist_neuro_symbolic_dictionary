@@ -1,0 +1,47 @@
+id: pad:high_alert_medication_substitution
+lemma: high-alert medication substitution
+domain: patient_advocacy
+domain_sense: >
+  administration of a high-alert drug in place of the intended agent, where
+  the substituted drug's therapeutic index makes the error immediately
+  injurious rather than merely ineffective
+status: provisional          # active investigation — re-check on regulatory finding
+grounding:
+  conceptual_region: [risk, disclosure]
+  glyphs:
+    - {form: vial-pair, peirce: icon, role: logogram}
+    - {form: hazard-triangle, peirce: symbol, role: logogram}
+causal:
+  # The proximate mechanism is deliberately ABSENT. The source states the cause
+  # was identified by the provider but not disclosed. Candidate antecedents
+  # (look-alike floor stock, absent independent double-check) are held out of
+  # the graph until a regulatory finding raises them above the journalism tier.
+  edges:
+    - {cause: iv_concentrated_potassium, relation: causes,
+       effect: neural_tissue_injury, confidence: 0.85, provenance: ismp:high_alert_list}
+    - {cause: high_alert_medication_substitution, relation: causes,
+       effect: patient_harm, confidence: 0.80, provenance: cbs:nashville_2026-08-14#outcomes}
+    - {cause: neural_tissue_injury, relation: causes,
+       effect: irreversible_neurologic_injury, confidence: 0.70, provenance: cbs:nashville_2026-08-14#outcomes}
+  interventions:
+    - "do(remove_concentrated_kcl_from_floor_stock) lowers high_alert_medication_substitution"
+    - "do(independent_double_check) lowers high_alert_medication_substitution"
+ethics:
+  principle_polarity: {non_maleficence: "-", beneficence: "-"}
+  warrants:
+    - {claim: least_restrictive_means, principle: non_maleficence}
+  balancing_note: >
+    no autonomy trade-off is available — the patient was under anaesthesia and
+    could not have consented to or refused the substituted agent; the duty is
+    wholly on the administering system
+svo:
+  subject: high_alert_medication_substitution
+  verb: causes
+  obj: patient_harm
+  derived_from: cbs:nashville_2026-08-14#outcomes
+glyph_block:
+  logogram: vial-pair
+  superfix: risk_is_up
+  subfix: protective_duty
+metaphor_type: "orientational (MORE IS UP) over ontological (MEDICATION IS A CONTAINER)"
+provenance: cbs:nashville_2026-08-14
