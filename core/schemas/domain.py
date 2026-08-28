@@ -67,6 +67,15 @@ class Principle:
     label: str
     # polarity is assigned per-entry by the norms engine, not here
     description: str = ""
+    # A principle a domain pack asserts is REQUIRED but that the domain's
+    # owners have not adopted. Declaring it lets an entry record a harm the
+    # ratified set cannot receive, without the engine treating that harm as
+    # settled. Any entry whose principle_polarity touches a proposed principle
+    # must escalate rather than resolve — the same posture as an empty
+    # `warrants` list. See domains/gov_procurement/domain.py for the case that
+    # forced it: nine deployed-system entries whose harms land on nobody in the
+    # five-principle procurement-integrity set.
+    proposed: bool = False
 
 
 @dataclass

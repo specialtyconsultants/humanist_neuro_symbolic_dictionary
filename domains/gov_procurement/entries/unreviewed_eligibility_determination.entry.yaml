@@ -1,0 +1,81 @@
+# INTERSTATE CAT-02 · Proactive eligibility & benefits
+# Instances: Michigan MiDAS (2013-2015) — ~40,000 residents falsely accused of
+#   unemployment fraud; the state Auditor General reviewed 22,000 determinations
+#   in 2016 and found 93% involved no fraud. Bauserman v. UIA, Mich. Sup. Ct.
+#   No. 160813 (July 2022); $20M settlement approved Jan 2024. Second instance:
+#   Australia's Robodebt (Royal Commission report, July 2023).
+id: gpr:unreviewed_eligibility_determination
+lemma: unreviewed eligibility determination
+domain: gov_procurement
+domain_sense: >
+  an eligibility outcome produced by automated data matching and issued to the
+  resident as the position of the agency, with no human having opened the
+  individual case file
+status: provisional          # the polarity conditional below needs a normative ruling
+grounding:
+  conceptual_region: [specificity, risk, consequentiality, reversibility]
+  glyphs:
+    - {form: figure-at-counter, peirce: icon, role: logogram}
+    - {form: gate-bar, peirce: symbol, role: logogram}
+causal:
+  # THE CENTRAL FINDING OF THIS ENTRY IS AN ABSENCE OF AN EDGE.
+  # There is no causal edge distinguishing the enrolling case from the
+  # terminating case, because in the system there is none: the same match, the
+  # same confidence, the same notice generator. The normative sign is fixed
+  # entirely by the DIRECTION of the determination, which is a property of the
+  # output and not of the architecture. This is why CAT-02 cannot be procured
+  # as one thing. A municipality buying the benevolent framing ("flipping
+  # government from reactive to proactive") acquires the adverse capability in
+  # the same instrument, at the same price, under the same governance terms.
+  edges:
+    - {cause: automated_data_match, relation: enables,
+       effect: unreviewed_eligibility_determination, confidence: 0.90,
+       provenance: "mi_oag:midas_audit_2016#methodology"}
+    - {cause: unreviewed_eligibility_determination, relation: causes,
+       effect: erroneous_adverse_action, confidence: 0.85,
+       provenance: "mi_oag:midas_audit_2016#93pct_finding"}
+    - {cause: erroneous_adverse_action, relation: causes,
+       effect: deprivation_before_adjudication, confidence: 0.80,
+       provenance: "bauserman:160813#facts"}
+    - {cause: burden_shift_to_the_affected_person, relation: prevents,
+       effect: timely_reversal, confidence: 0.75,
+       provenance: "bauserman:160813#due_process_claim"}
+    # positive direction, same pipeline, retained deliberately:
+    - {cause: automated_data_match, relation: increases,
+       effect: benefit_takeup_among_eligible, confidence: 0.70,
+       provenance: "inferred:auto_enrollment#needs_grounding"}
+  interventions:
+    - "do(human_review_conditional_on_adverse_direction) removes unreviewed_eligibility_determination"
+    - "do(continue_benefit_pending_appeal) removes deprivation_before_adjudication"
+    - "do(agency_bears_burden_of_proof) enables timely_reversal"
+ethics:
+  principle_polarity: {due_process: "-", resident_non_maleficence: "-",
+                       meaningful_access: "+", best_value_integrity: "+/-"}
+  warrants:
+    - {claim: human_in_the_loop, principle: due_process}
+    - {claim: no_deprivation_pending_review, principle: due_process}   # source: proposed
+  balancing_note: >
+    the trade offered by the category is administrative efficiency against
+    individual review, and it is not a real trade, because the efficiency is
+    won on the enrolling cases and the cost is paid on the terminating ones.
+    Those are different people. An aggregate best-value calculation that nets
+    them against each other is the specific error MiDAS institutionalised: the
+    system was, on average, cheap.
+    Note that `human_in_the_loop` as offered in Interstate §3 does NOT discharge
+    due_process here on its own. Its cost falls almost entirely on the adverse
+    branch, so under budget pressure it is the enrolment branch that keeps the
+    automation and the termination branch that is asked to justify its
+    reviewers. The term must be written conditionally — a person opens the file
+    whenever the determination is adverse — or it will be renegotiated in
+    exactly the wrong direction after award.
+svo:
+  subject: unreviewed_eligibility_determination
+  verb: causes
+  obj: erroneous_adverse_action
+  derived_from: "mi_oag:midas_audit_2016#93pct_finding"
+glyph_block:
+  logogram: gate
+  superfix: fast_is_forward
+  subfix: due_process
+metaphor_type: "orientational (PROACTIVE IS FORWARD) — the metaphor is directionless about sign, which is the defect"
+provenance: "bauserman:160813"

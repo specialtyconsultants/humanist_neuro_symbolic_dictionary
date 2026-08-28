@@ -1,0 +1,69 @@
+# INTERSTATE CAT-01 · Resident service assistants
+# Instances: NYC "MyCity" business chatbot (2024) — told business owners they
+#   could refuse Section 8 tenants and take a cut of workers' tips, and stayed
+#   online after the reporting. Second instance: any 311 assistant answering
+#   questions about a code the same body enforces.
+id: gpr:unlawful_advice_from_official_channel
+lemma: unlawful advice from an official channel
+domain: gov_procurement
+domain_sense: >
+  guidance issued under a government's own seal which, if followed, places the
+  resident in violation of a law that same government enforces
+status: provisional
+grounding:
+  conceptual_region: [disclosure, risk, consequentiality]   # consequentiality: proposed dim
+  glyphs:
+    - {form: official-seal, peirce: symbol, role: logogram}
+    - {form: figure-at-counter, peirce: icon, role: logogram}
+causal:
+  # The generative failure is ordinary and well understood. What is specific to
+  # GOVERNMENT deployment is the second edge: the seal is not decoration, it is
+  # the reason the advice is acted on without being checked. A private chatbot
+  # that gives the same answer produces a much smaller harm because nobody
+  # treats it as the position of the enforcing authority.
+  edges:
+    - {cause: ungrounded_generation, relation: causes,
+       effect: unlawful_advice_from_official_channel, confidence: 0.85,
+       provenance: "markup:nyc_mycity_2024-03-29#findings"}
+    - {cause: official_channel_branding, relation: increases,
+       effect: advice_reliance, confidence: 0.75,
+       provenance: "inferred:authority_transfer#needs_grounding"}
+    - {cause: advice_reliance, relation: increases,
+       effect: resident_legal_exposure, confidence: 0.80,
+       provenance: "markup:nyc_mycity_2024-03-29#findings"}
+    - {cause: unretained_conversation, relation: prevents,
+       effect: informed_recourse, confidence: 0.70,
+       provenance: "inferred:evidentiary#needs_grounding"}
+  interventions:
+    - "do(retrieval_restricted_to_published_code) lowers ungrounded_generation"
+    - "do(transcript_retention_with_citation) enables informed_recourse"
+    - "do(human_handoff_on_enforcement_topics) lowers resident_legal_exposure"
+ethics:
+  principle_polarity: {resident_non_maleficence: "-", meaningful_access: "+",
+                       due_process: "-"}
+  warrants:
+    - {claim: human_in_the_loop, principle: due_process}
+    - {claim: accessibility_508_multilingual, principle: meaningful_access}
+  balancing_note: >
+    the only entry in this seed with a genuine positive pole: round-the-clock
+    multilingual answering is a real access gain for residents who cannot take a
+    weekday off to stand at a counter, and it should not be argued away. The
+    trade is access against exposure, and it is decidable — the harm is
+    concentrated in the narrow band of questions whose answer is the boundary of
+    an enforceable rule. Route that band to a human and the positive pole
+    survives intact. What is NOT available is a balance struck at the level of
+    "the chatbot" as a whole; the unit of governance is the topic, not the tool.
+    due_process is negative because a resident penalised for following the
+    city's own guidance has no forum in which the guidance is evidence, the
+    conversation having been discarded.
+svo:
+  subject: unlawful_advice_from_official_channel
+  verb: increases
+  obj: resident_legal_exposure
+  derived_from: "markup:nyc_mycity_2024-03-29#findings"
+glyph_block:
+  logogram: seal
+  superfix: authority_is_worn
+  subfix: protective_duty
+metaphor_type: "ontological (THE CHANNEL IS THE STATE — a vendor model wearing the seal)"
+provenance: "markup:nyc_mycity_2024-03-29"

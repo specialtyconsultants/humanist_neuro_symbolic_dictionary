@@ -1,0 +1,86 @@
+# INTERSTATE CAT-03 · Plain-language & translation
+# Instances: FEMA's Typhoon Merbok disaster-aid documents for western Alaska
+#   (issued Sept 2022, reported Jan 2023) — Yugtun and Inupiaq translations that
+#   were phrases lifted from an 80-year-old Russian Far East folklore
+#   collection, one document delivered entirely in Inuktitut, a language of
+#   northern Canada. The vendor was fired after the errors surfaced.
+#   Second instance: machine-translated benefit-termination notices, where the
+#   same hole exists at a thousand times the volume.
+#
+# NOTE ON WHY A HUMAN-VENDOR FAILURE GROUNDS AN AI ENTRY. It grounds it better.
+# The FEMA failure had a human translator, a contract, and a deliverable, and
+# still shipped word salad to disaster survivors — because no one at the issuing
+# body could read the output. Machine translation does not introduce that hole;
+# it inherits it and scales it. The lemma is therefore about verifiability, not
+# about models.
+id: gpr:unverifiable_translation
+lemma: unverifiable translation
+domain: gov_procurement
+domain_sense: >
+  an official notice issued in a language no one in the issuing body reads, so
+  that its correctness cannot be evaluated at the point of issue and its failure
+  produces no error signal
+status: provisional
+grounding:
+  conceptual_region: [disclosure, access, risk]   # access: proposed dim
+  glyphs:
+    - {form: document, peirce: icon, role: logogram}
+    - {form: severed-link, peirce: index, role: logogram}
+causal:
+  # The load-bearing edge is the third one. A notice's LEGAL effect is conferred
+  # by service, not by comprehension: the appeal window opens, the hearing is
+  # waived by non-appearance, the debt becomes final. So a defective translation
+  # does not fail. It succeeds completely at its jurisdictional function while
+  # failing completely at its communicative one, and the two are not coupled
+  # anywhere in the system. Nothing anywhere in the pipeline is in a position to
+  # notice. That is the whole entry.
+  edges:
+    - {cause: no_target_language_reader_in_issuing_body, relation: prevents,
+       effect: output_verification, confidence: 0.90,
+       provenance: "press:fema_alaska_translations_2023-01#vendor_review"}
+    - {cause: absent_output_verification, relation: enables,
+       effect: unverifiable_translation, confidence: 0.85,
+       provenance: "press:fema_alaska_translations_2023-01#findings"}
+    - {cause: service_of_notice, relation: causes,
+       effect: legal_effect_regardless_of_comprehension, confidence: 0.95,
+       provenance: "inferred:service_doctrine#needs_grounding"}
+    - {cause: unverifiable_translation, relation: prevents,
+       effect: informed_recourse, confidence: 0.80,
+       provenance: "press:fema_alaska_translations_2023-01#impact"}
+    - {cause: unverifiable_translation, relation: delays,
+       effect: error_discovery, confidence: 0.85,
+       provenance: "press:fema_alaska_translations_2023-01#timeline"}
+  interventions:
+    - "do(back_translation_review_by_independent_speaker) removes absent_output_verification"
+    - "do(toll_deadlines_until_verified_delivery) removes legal_effect_regardless_of_comprehension"
+    - "do(community_reader_panel_on_retainer) removes no_target_language_reader_in_issuing_body"
+ethics:
+  principle_polarity: {meaningful_access: "-", due_process: "-",
+                       non_discrimination: "-", transparency: "+/-"}
+  warrants:
+    - {claim: accessibility_508_multilingual, principle: meaningful_access}
+  balancing_note: >
+    the accessibility term is satisfied on its face and defeated in substance.
+    Delivery in N languages is testable by the issuing body; correctness in
+    those N languages is not, and the term as written in §3 procures the former.
+    This is the sharpest case in the seed of a governance clause whose
+    verification condition is weaker than its promise, and it is not fixed by
+    adding "and the translation must be accurate" — accuracy that no one can
+    check is not a requirement, it is a hope with a signature on it. The
+    non_discrimination polarity is negative structurally rather than
+    intentionally: the languages hardest to verify are spoken by the smallest
+    and most isolated communities, so verification failure concentrates exactly
+    where the notice was the resident's only channel. transparency is mixed —
+    the document exists, is public, and is in the file; it simply does not mean
+    anything.
+svo:
+  subject: unverifiable_translation
+  verb: prevents
+  obj: informed_recourse
+  derived_from: "press:fema_alaska_translations_2023-01#impact"
+glyph_block:
+  logogram: notice
+  superfix: link_is_broken
+  subfix: meaningful_access
+metaphor_type: "structural (COMMUNICATION IS A CONDUIT — conduit intact, contents replaced)"
+provenance: "press:fema_alaska_translations_2023-01"

@@ -1,0 +1,100 @@
+# INTERSTATE CAT-06 · Public-comment synthesis
+# Instances: FCC net-neutrality docket 17-108 — >22 million comments, of which
+#   the NY Attorney General's May 2021 report found nearly 18 million were fake;
+#   a broadband-industry coalition paid $4.2M for 8.5 million of them using real
+#   people's identities without consent, and separately one 19-year-old
+#   submitted 7.7 million on the other side.
+#   Second instance: a municipal rezoning docket where a tenants' union turns
+#   out 400 residents with a shared template.
+id: gpr:deduplicated_public_comment
+lemma: deduplicated public comment
+domain: gov_procurement
+domain_sense: >
+  the collapse of near-identical submissions into a single weighted position
+  prior to synthesis, on the assumption that textual similarity indicates
+  duplication rather than coordination
+status: provisional          # the ethics footnote is unresolved; see warrants
+grounding:
+  conceptual_region: [disclosure, specificity, access]
+  glyphs:
+    - {form: many-figures, peirce: icon,   role: logogram}
+    - {form: hash-marks,   peirce: symbol, role: logogram}
+causal:
+  # THE CORE OF THIS ENTRY IS THAT ONE OPERATION HAS TWO OPPOSITE NORMATIVE
+  # SIGNS AND THE CLUSTERER CANNOT SEE WHICH IT IS IN.
+  # Astroturf and an organised tenants' union produce the same observable: many
+  # near-identical texts arriving together. Collapsing them is correct in the
+  # first case and disenfranchising in the second. The distinguishing fact —
+  # whether a real person assented — is not present in the text and is not
+  # recoverable from it by any method. The FCC docket contains both patterns at
+  # once, which is why it grounds this entry and not merely illustrates it.
+  # Note the second-order harm: collapse-by-similarity treats ORGANISATION as
+  # evidence of INAUTHENTICITY, and organisation is the participation mode of
+  # exactly those communities least able to send individually-drafted prose.
+  edges:
+    - {cause: textual_similarity, relation: enables,
+       effect: deduplicated_public_comment, confidence: 0.90,
+       provenance: "inferred:clustering_method#structural"}
+    - {cause: fabricated_comment_volume, relation: causes,
+       effect: textual_similarity, confidence: 0.85,
+       provenance: "nyag:fcc_fake_comments_2021-05#findings"}
+    - {cause: organised_community_campaign, relation: causes,
+       effect: textual_similarity, confidence: 0.80,
+       provenance: "nyag:fcc_fake_comments_2021-05#volume_analysis"}
+    - {cause: deduplicated_public_comment, relation: prevents,
+       effect: proportional_weight_of_organised_constituency, confidence: 0.75,
+       provenance: "inferred:collapse_effect#needs_grounding"}
+    - {cause: volume_weighted_synthesis, relation: prevents,
+       effect: minority_viewpoint_visibility, confidence: 0.80,
+       provenance: "inferred:aggregation#structural"}
+  interventions:
+    - "do(verify_assent_at_submission) removes fabricated_comment_volume"
+    - "do(report_distinct_positions_separately_from_volume) removes volume_weighted_synthesis"
+    - "do(carry_singleton_clusters_uncollapsed_into_synthesis) enables minority_viewpoint_visibility"
+ethics:
+  principle_polarity: {fair_treatment: "-", non_discrimination: "-",
+                       transparency: "+/-"}
+  warrants: []
+  # ^ NO SELECTABLE TERM IN INTERSTATE §3 REACHES THIS HARM. Human-in-the-loop
+  #   puts a person above the clustering, not inside it — and no person reads
+  #   22 million comments, which is the entire reason the category exists.
+  #   Audit logging records that the collapse happened, which was never in
+  #   doubt. Bias testing has no protected class to test against, because the
+  #   disfavoured group here is "people who participate through an
+  #   organisation." The norms engine must NOT manufacture permissibility.
+  #   Escalate for a human normative decision.
+  #
+  #   NOTE: `minority_view_preservation` IS proposed in norms/rules.yaml but is
+  #   deliberately NOT entered here, unlike the proposed claims cited by
+  #   gpr:investigative_flag_as_determination and
+  #   gpr:automated_completeness_rejection. Those two would be discharged by
+  #   their proposed term outright — continue the benefit, issue an appealable
+  #   decision, done. This one would not. How much weight an organised
+  #   constituency is owed relative to an individual submission is an unsettled
+  #   question of political theory, not a missing feature, and a warrant that
+  #   claimed to settle it would be the engine manufacturing exactly the
+  #   permissibility this block refuses. The proposed rule gets the requirement
+  #   into the instrument; it does not resolve the entry.
+  balancing_note: >
+    the competing goods are real and the conflict is not resolvable by better
+    engineering. Weighting by volume makes a docket capturable by whoever can
+    buy volume — the documented FCC outcome. Discarding volume entirely makes
+    an organised constituency indistinguishable from one letter-writer, which is
+    a different disenfranchisement, aimed at the people with the least
+    individual capacity to write. There is no neutral setting. The category's
+    own prose — "surfacing minority viewpoints" — states the right goal and
+    the instrument provides no term that binds a vendor to it, so the goal is
+    currently a marketing claim rather than a requirement.
+    transparency is mixed: the synthesis is auditable and reproducible, and
+    reproducibly performs the collapse.
+svo:
+  subject: deduplicated_public_comment
+  verb: prevents
+  obj: proportional_weight_of_organised_constituency
+  derived_from: "nyag:fcc_fake_comments_2021-05#findings"
+glyph_block:
+  logogram: crowd
+  superfix: more_is_up
+  subfix: due_process
+metaphor_type: "orientational (SUPPORT IS VOLUME) over ontological (A DOCKET IS A BALLOT — it is not)"
+provenance: "nyag:fcc_fake_comments_2021-05"

@@ -1,0 +1,83 @@
+# INTERSTATE CAT-05 · Document & records processing
+# Instances: Axon Draft One police-report drafting from body-camera audio; the
+#   King County (WA) Prosecuting Attorney's Office memo to police chiefs,
+#   20 Sept 2024, declining to accept AI-assisted report narratives — citing,
+#   among other things, that Draft One erased the initial draft on export,
+#   leaving no evidence of which portions the model wrote.
+#   Second instance: AI summarisation of permit and case files at intake, where
+#   the summary is what every downstream reviewer actually reads.
+id: gpr:generated_official_record
+lemma: generated official record
+domain: gov_procurement
+domain_sense: >
+  a machine-drafted summary that enters an official file and thereafter serves
+  as the artifact consulted at every downstream decision, while the source it
+  summarises remains archived and unread
+status: provisional
+grounding:
+  conceptual_region: [disclosure, specificity, reversibility]
+  glyphs:
+    - {form: bound-ledger,  peirce: icon,  role: logogram}
+    - {form: severed-link,  peirce: index, role: logogram}
+causal:
+  # The humanist claim: a record is not what exists, it is what gets read.
+  # Provenance here does not disappear — the bodycam footage is retained, the
+  # 200-page case file is retained, and both are cited. What disappears is the
+  # EXERCISE of provenance. At every future decision point it is cheaper to read
+  # the summary than to check it, and that differential does not decay. So the
+  # generated text becomes the record of record by attrition rather than by any
+  # decision anyone made or could be held to.
+  # The King County finding is stronger than that and is graded higher: where
+  # the pre-edit draft is destroyed on export, provenance is not merely
+  # unexercised, it is unavailable. An officer's signed report and a model's
+  # paragraph become the same object, and no later process can separate them.
+  edges:
+    - {cause: draft_erased_on_export, relation: prevents,
+       effect: attribution_of_authorship, confidence: 0.90,
+       provenance: "kcpao:2024-09-20_memo#transparency"}
+    - {cause: absent_attribution_of_authorship, relation: prevents,
+       effect: informed_recourse, confidence: 0.85,
+       provenance: "kcpao:2024-09-20_memo#evidentiary"}
+    - {cause: generated_official_record, relation: causes,
+       effect: unexercised_provenance, confidence: 0.75,
+       provenance: "inferred:read_cost_asymmetry#structural"}
+    - {cause: unexercised_provenance, relation: increases,
+       effect: propagation_of_uncorrected_error, confidence: 0.80,
+       provenance: "inferred:downstream_reliance#needs_grounding"}
+    - {cause: generated_official_record, relation: increases,
+       effect: caseworker_throughput, confidence: 0.80,
+       provenance: "vendor:draft_one_claims#time_saved"}
+  interventions:
+    - "do(retain_pre_edit_draft_diffable_against_filed_record) removes draft_erased_on_export"
+    - "do(mandatory_source_citation_per_assertion) lowers unexercised_provenance"
+    - "do(exclude_ai_narrative_from_charging_documents) removes informed_recourse"
+ethics:
+  principle_polarity: {transparency: "-", due_process: "-",
+                       best_value_integrity: "+"}
+  warrants:
+    - {claim: audit_log_and_explainability, principle: transparency}
+    - {claim: source_record_retention, principle: transparency}   # source: proposed
+  balancing_note: >
+    `audit_log_and_explainability` is entered and is insufficient on its own,
+    and King County is the demonstration. A log that records THAT the tool was
+    used survives export; the draft recording WHAT it wrote did not. The audit
+    term as written in §3 procures the first and not the second, and the second
+    is the one a defendant needs.
+    The throughput gain is genuine — clearing a records backlog is why the
+    category exists, and backlogs are themselves a due-process harm, since a
+    permit that takes nine months and a permit denied are the same outcome for
+    an applicant with a lease running. The balance is therefore not
+    throughput-against-accuracy. It is throughput against SEPARABILITY: keep the
+    speed, and pay for it by preserving the ability to take the record apart
+    later. That is a storage cost, and it is small.
+svo:
+  subject: draft_erased_on_export
+  verb: prevents
+  obj: attribution_of_authorship
+  derived_from: "kcpao:2024-09-20_memo#transparency"
+glyph_block:
+  logogram: ledger
+  superfix: link_is_broken
+  subfix: transparency
+metaphor_type: "ontological (THE SUMMARY IS THE FILE — the map laminated over the territory)"
+provenance: "kcpao:2024-09-20_memo"

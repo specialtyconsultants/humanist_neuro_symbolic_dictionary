@@ -1,8 +1,42 @@
 logograms:
-  solicitation: {form: scroll, peirce: symbol}
-  bidder: {form: hand-raised, peirce: index}
-superfixes:
-  contest_frame: {form: crossed-flags, peirce: symbol, metaphor: structural}
-subfixes:
-  transparency: {form: eye-open, peirce: symbol, principle: transparency}
-  coi_flag: {form: split-circle, peirce: symbol, principle: coi_avoidance}
+  solicitation: {form: scroll,      peirce: symbol}
+  bidder:       {form: hand-raised, peirce: index}
+  # --- new ------------------------------------------------------------------
+  resident:     {form: figure-at-counter, peirce: icon}
+  seal:         {form: official-seal,     peirce: symbol}  # state authority, borrowed
+  notice:       {form: document,          peirce: icon}
+  ledger:       {form: bound-ledger,      peirce: icon}    # the record of record
+  sensor:       {form: sensor-node,       peirce: index}   # indexical: touches the pipe
+  tally:        {form: hash-marks,        peirce: symbol}  # symbolic: counts testimony
+  crowd:        {form: many-figures,      peirce: icon}
+  pennant:      {form: pennant,           peirce: symbol}  # a flag raised, not a verdict
+  gate:         {form: gate-bar,          peirce: symbol}
+  empty_frame:  {form: empty-frame,       peirce: icon}    # the blank instrument
+  severed_link: {form: severed-link,      peirce: index}
+
+# The sensor/tally pair is the load-bearing distinction in this vocabulary.
+# A pressure sensor is an INDEX of the pipe — physically connected to what it
+# reports. A 311 call is a SYMBOL — conventionally connected to a resident's
+# relationship with the city, and only contingently to the pipe. Fusing them
+# into one "signal" is a Peircean category error, and it is the error that
+# gpr:complaint_rate_as_condition_proxy encodes.
+
+superfixes:            # metaphor-type markers
+  contest_frame:     {form: crossed-flags, peirce: symbol, metaphor: structural}
+  authority_is_worn: {form: seal-ring,     peirce: symbol, metaphor: ontological}
+  link_is_broken:    {form: broken-chain,  peirce: index,  metaphor: structural}
+  more_is_up:        {form: up-arrow,      peirce: symbol, metaphor: orientational}
+  fast_is_forward:   {form: forward-arrow, peirce: symbol, metaphor: orientational}
+  visible_is_lit:    {form: lamp,          peirce: symbol, metaphor: structural}
+
+subfixes:              # norm-polarity "phonetic complements"
+  transparency:       {form: eye-open,     peirce: symbol, principle: transparency}
+  coi_flag:           {form: split-circle, peirce: symbol, principle: coi_avoidance}
+  open_competition:   {form: open-ring,    peirce: symbol, principle: open_competition}
+  # --- new, tracking the proposed principles --------------------------------
+  due_process:        {form: gavel-small,     peirce: symbol, principle: due_process}
+  non_discrimination: {form: balanced-scales, peirce: symbol, principle: non_discrimination}
+  meaningful_access:  {form: open-door,      peirce: symbol, principle: meaningful_access}
+  data_sovereignty:   {form: enclosed-square, peirce: symbol, principle: data_sovereignty}
+  public_capacity:    {form: keystone,       peirce: symbol, principle: continuity_of_public_capacity}
+  protective_duty:    {form: shield,         peirce: symbol, principle: resident_non_maleficence}

@@ -1,0 +1,90 @@
+# INTERSTATE CAT-07 · Fraud & anomaly detection
+# Instances: the Dutch SyRI risk-indication system, struck down by the Hague
+#   District Court, 5 Feb 2020 (ECLI:NL:RBDHA:2020:865), and the childcare
+#   benefits affair that brought down the Rutte government in Jan 2021.
+#   Second instance: IRS audit selection, where Stanford RegLab and Treasury
+#   found in Jan 2023 that Black taxpayers were audited at roughly 3-5x the rate
+#   of others, driven largely by EITC correspondence-audit selection.
+id: gpr:investigative_flag_as_determination
+lemma: investigative flag as determination
+domain: gov_procurement
+domain_sense: >
+  an anomaly score nominally raised for human investigation which functions as
+  an adverse decision, because the consequences attaching to being investigated
+  begin before the investigation concludes
+status: provisional
+grounding:
+  conceptual_region: [risk, specificity, consequentiality, reversibility]
+  glyphs:
+    - {form: pennant,          peirce: symbol, role: logogram}
+    - {form: figure-at-counter, peirce: icon,  role: logogram}
+causal:
+  # CAT-07's prose makes the defence explicitly: "flagging for human
+  # investigators rather than deciding on its own." This entry is the argument
+  # that the distinction is not a property of the model but of the PROCEDURE
+  # ATTACHED TO THE FLAG, and that the procurement instrument governs the model
+  # while the procedure is set elsewhere, usually by operational policy, later,
+  # by people who never saw the solicitation.
+  # If benefits are suspended pending review, the flag has already imposed the
+  # penalty. The human reviewer then determines only whether it is refunded —
+  # and a refund three months later is not the same good as uninterrupted rent.
+  # Human-in-the-loop is fully satisfied. Due process is not touched.
+  edges:
+    - {cause: anomaly_score_above_threshold, relation: causes,
+       effect: investigative_flag_as_determination, confidence: 0.85,
+       provenance: "rbdha:2020_865#risk_indication"}
+    - {cause: suspension_pending_investigation, relation: causes,
+       effect: deprivation_before_adjudication, confidence: 0.90,
+       provenance: "nl:toeslagenaffaire#parliamentary_findings"}
+    - {cause: deprivation_before_adjudication, relation: prevents,
+       effect: meaningful_review, confidence: 0.75,
+       provenance: "inferred:ordering#structural"}
+    - {cause: burden_shift_to_the_affected_person, relation: increases,
+       effect: exit_without_adjudication, confidence: 0.80,
+       provenance: "nl:toeslagenaffaire#parliamentary_findings"}
+    - {cause: proxy_correlated_with_protected_class, relation: causes,
+       effect: disparate_flag_rate, confidence: 0.85,
+       provenance: "acad:reglab_irs_audit_2023#eitc_finding"}
+    - {cause: opaque_risk_model, relation: prevents,
+       effect: informed_recourse, confidence: 0.85,
+       provenance: "rbdha:2020_865#transparency_holding"}
+  interventions:
+    - "do(continue_benefit_pending_investigation) removes deprivation_before_adjudication"
+    - "do(disclose_flag_grounds_to_flagged_person) enables informed_recourse"
+    - "do(agency_bears_burden_of_proof) removes burden_shift_to_the_affected_person"
+    - "do(audit_selection_rate_parity_review) lowers disparate_flag_rate"
+ethics:
+  principle_polarity: {due_process: "-", non_discrimination: "-",
+                       transparency: "-", best_value_integrity: "+"}
+  warrants:
+    - {claim: human_in_the_loop, principle: due_process}
+    - {claim: no_deprivation_pending_review, principle: due_process}   # source: proposed
+    - {claim: bias_and_impact_testing, principle: non_discrimination}
+  balancing_note: >
+    recovering improper payments is a legitimate and substantial public
+    interest, and a municipality that cannot detect procurement fraud is not
+    thereby more just. The objection is to the ORDERING, and the ordering costs
+    almost nothing: run the flag, open the investigation, and leave the payment
+    running until a person has looked. What the Dutch case shows is that the
+    ordering is never chosen deliberately — it arrives as an operational default
+    that nobody procured, and by then the instrument that could have fixed it
+    has been signed.
+    `human_in_the_loop` alone is entered here as a warrant that DOES NOT
+    DISCHARGE the principle, and this entry is the reason
+    `no_deprivation_pending_review` was added to rules.yaml. §3 offers no such
+    checkbox. Without it, a body can select every governance term on the form
+    and still build the toeslagenaffaire.
+    non_discrimination is negative independently: a model fitted on historical
+    enforcement learns where enforcement historically went, and EITC audit
+    selection is the best-measured public instance of that in existence.
+svo:
+  subject: suspension_pending_investigation
+  verb: causes
+  obj: deprivation_before_adjudication
+  derived_from: "nl:toeslagenaffaire#parliamentary_findings"
+glyph_block:
+  logogram: pennant
+  superfix: more_is_up
+  subfix: due_process
+metaphor_type: "ontological (A FLAG IS A VERDICT — the category denies this; the procedure asserts it)"
+provenance: "rbdha:2020_865"

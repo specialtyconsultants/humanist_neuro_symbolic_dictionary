@@ -1,5 +1,97 @@
+# Warrant templates: claim |- principle. Balancing stays explicit/inspectable.
+#
+# KEY FINDING. The six checkboxes in Interstate §3 "Governance posture" are
+# already a warrant rule set. They are the only place in the instrument where a
+# claim is bound to a principle and made binding on a bidder before a price is
+# named. Encoded below with `source: "interstate:s3"`.
+#
+# Consequence for the engine: a solicitation that selects none of them yields
+# `warrants: []` on every resident-facing harm in this seed, and the norms
+# engine must then REFUSE to resolve permissibility rather than default to it
+# — the same escalation path taken by pad:institutional_nondisclosure.
+#
+# The four claims marked `source: proposed` have NO checkbox in §3. Each was
+# forced by an entry below whose harm none of the six discharge.
 warrants:
-  - {claim: unrestricted_solicitation, principle: open_competition}
+  # --- existing --------------------------------------------------------------
+  - {claim: unrestricted_solicitation,     principle: open_competition}
   - {claim: disclosed_evaluation_criteria, principle: transparency}
   - {claim: recused_evaluator, principle: coi_avoidance,
      balancing_note: balance evaluator expertise against appearance of bias}
+
+  # --- the six selectable terms, read as warrants ---------------------------
+  - claim: human_in_the_loop
+    principle: due_process
+    source: "interstate:s3"
+    balancing_note: >
+      discharges due_process ONLY where the human decides BEFORE the
+      deprivation. A reviewer who confirms a suspension already imposed does
+      not warrant the suspension. The term as written — "a person decides on
+      every consequential action" — does not fix the ordering, and the ordering
+      is the whole of the protection. See gpr:investigative_flag_as_determination.
+  - claim: audit_log_and_explainability
+    principle: transparency
+    source: "interstate:s3"
+    balancing_note: >
+      a log warrants transparency toward an auditor who reads it. It does not
+      warrant transparency toward the resident, who does not know the log
+      exists and cannot compel its production.
+  - claim: exit_ready_no_lock_in
+    principle: continuity_of_public_capacity
+    source: "interstate:s3"
+  - claim: exit_ready_no_lock_in
+    principle: best_value_integrity
+    source: "interstate:s3"
+    balancing_note: >
+      also protects FUTURE open_competition, since lock-in forecloses the next
+      solicitation. This is the one term on the list that defends a procurement
+      principle rather than a resident.
+  - claim: data_residency_no_training
+    principle: data_sovereignty
+    source: "interstate:s3"
+  - claim: bias_and_impact_testing
+    principle: non_discrimination
+    source: "interstate:s3"
+    balancing_note: >
+      pre-deployment testing warrants non_discrimination at t=0 only. Every
+      entry here containing a feedback loop degrades AFTER deployment, and a
+      pre-deployment test cannot see it. See gpr:complaint_rate_as_condition_proxy.
+  - claim: accessibility_508_multilingual
+    principle: meaningful_access
+    source: "interstate:s3"
+    balancing_note: >
+      508 conformance and delivery in N languages are testable by the issuing
+      body. Correctness IN those languages is not, unless someone who reads
+      them is employed to check. See gpr:unverifiable_translation.
+
+  # --- forced by entries in this seed; no checkbox exists -------------------
+  - claim: no_deprivation_pending_review
+    principle: due_process
+    source: proposed
+    balancing_note: >
+      forced by gpr:investigative_flag_as_determination. Benefits continue while
+      a flag is investigated. Without this term, human_in_the_loop is satisfied
+      by a review that happens after the rent has already gone unpaid.
+  - claim: source_record_retention
+    principle: transparency
+    source: proposed
+    balancing_note: >
+      forced by gpr:generated_official_record. Requires retention of the source
+      AND of the pre-edit draft, diffable against the filed record. Axon
+      Draft One erased the draft on export: the fact that AI was used survived,
+      the evidence of what it wrote did not.
+  - claim: minority_view_preservation
+    principle: fair_treatment
+    source: proposed
+    balancing_note: >
+      forced by gpr:deduplicated_public_comment. A synthesis must carry
+      un-collapsed viewpoints held by few, reported separately from any volume
+      count. CAT-06's own prose promises exactly this; no selectable term
+      delivers it, so the promise is unenforceable as the instrument stands.
+  - claim: appealable_intake_decision
+    principle: due_process
+    source: proposed
+    balancing_note: >
+      forced by gpr:automated_completeness_rejection. A rejection that yields no
+      adjudicated decision yields nothing to appeal, and leaves the cycle-time
+      metric rather than appearing in it as a failure.

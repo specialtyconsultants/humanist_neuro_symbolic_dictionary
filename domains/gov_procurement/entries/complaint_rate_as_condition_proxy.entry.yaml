@@ -1,0 +1,103 @@
+# INTERSTATE CAT-04 · Predictive infrastructure
+# Instances: Syracuse NY water-main break prediction (city + Data Science for
+#   Social Good, 2016) — the good version, fitted largely on pipe attributes.
+#   Second instance: Boston's Street Bump pothole app (2011-13), the canonical
+#   demonstration that crowd-sourced condition reporting maps smartphone
+#   ownership and civic confidence as much as it maps pavement.
+id: gpr:complaint_rate_as_condition_proxy
+lemma: complaint rate as condition proxy
+domain: gov_procurement
+domain_sense: >
+  use of 311 or complaint volume as the target or a feature in a model of
+  physical asset condition, such that the model learns the propensity to report
+  rather than the state of the asset
+status: ratified              # the feedback structure is not in dispute
+grounding:
+  # This is the Peircean entry. A pressure sensor is an INDEX of the pipe: it is
+  # physically connected to what it reports, and it reports whether or not
+  # anyone is paying attention. A 311 call is a SYMBOL: it is conventionally
+  # connected to a resident's relationship with the city, and only contingently
+  # connected to the pipe. Fusing the two into one "signal" — which is precisely
+  # what the category's own prose proposes, "fusing sensor data, 311 reports,
+  # and weather" — is a category error before it is a statistical one.
+  conceptual_region: [specificity, risk, disclosure]
+  glyphs:
+    - {form: sensor-node, peirce: index,  role: logogram}
+    - {form: hash-marks,  peirce: symbol, role: logogram}
+causal:
+  # THIS ENTRY IS A FEEDBACK LOOP, AND IT IS ENCODED UNROLLED IN TIME rather
+  # than as a cycle. `@t` / `@t1` index the same variable at successive
+  # deployment epochs. An SCM must be a DAG for do-calculus to run, so a real
+  # loop has to be represented by unrolling and not by an edge returning to its
+  # own ancestor — otherwise `core/scm/dag.py` rejects the graph and the
+  # finding cannot be queried at all. Proposing `@` as the domain-wide
+  # convention for this; it is the first entry in either domain to need one.
+  #
+  # The loop is why a pre-deployment bias test cannot see this harm. At t=0 the
+  # model is merely inaccurate and there is no disparity to find. The disparity
+  # is manufactured over subsequent epochs by the model's own effect on the
+  # inspection schedule that generates its next training set.
+  edges:
+    - {cause: "civic_trust_disparity@t", relation: causes,
+       effect: "under_reporting_by_neighbourhood@t", confidence: 0.75,
+       provenance: "acad:street_bump_2013#reporting_skew"}
+    - {cause: "under_reporting_by_neighbourhood@t", relation: causes,
+       effect: low_predicted_failure_risk, confidence: 0.85,
+       provenance: "inferred:target_leakage#structural"}
+    - {cause: low_predicted_failure_risk, relation: prevents,
+       effect: scheduled_inspection, confidence: 0.80,
+       provenance: "inferred:triage_policy#structural"}
+    - {cause: scheduled_inspection, relation: enables,
+       effect: condition_discovery, confidence: 0.90,
+       provenance: "inferred:observability#structural"}
+    - {cause: condition_discovery, relation: prevents,
+       effect: unaddressed_asset_failure, confidence: 0.85,
+       provenance: "case:syracuse_water_main_2016#method"}
+    # --- loop closure into the next epoch ---
+    - {cause: unaddressed_asset_failure, relation: increases,
+       effect: "civic_trust_disparity@t1", confidence: 0.60,
+       provenance: "inferred:loop_closure#needs_grounding"}
+    # ^ the weak link, deliberately. That sustained neglect erodes the
+    #   propensity to report is plausible and is the mechanism the entry turns
+    #   on, but I have no municipal study measuring it. Until one exists this
+    #   edge is not licensed to carry the argument alone — and it does not have
+    #   to, because the target-leakage edge above stands without it.
+    # the exogenous break in the loop, and why Syracuse is the good case:
+    - {cause: instrumented_asset_telemetry, relation: enables,
+       effect: condition_discovery, confidence: 0.85,
+       provenance: "case:syracuse_water_main_2016#method"}
+  interventions:
+    - "do(fit_on_asset_attributes_not_report_volume) removes complaint_rate_as_condition_proxy"
+    - "do(stratified_random_physical_inspection) enables condition_discovery"
+    - "do(exogenous_sensor_ground_truth) removes low_predicted_failure_risk"
+ethics:
+  principle_polarity: {non_discrimination: "-", resident_non_maleficence: "-",
+                       best_value_integrity: "+"}
+  warrants:
+    - {claim: bias_and_impact_testing, principle: non_discrimination}
+  balancing_note: >
+    the best-value pole is real and should be conceded: predicting a main break
+    before it happens is cheaper and safer than repairing a flooded street, and
+    a municipality that declines the category on fairness grounds keeps a worse
+    status quo. The objection is not to prediction. It is to the choice of
+    target. Fit on pipe age, material, soil, pressure and break history and the
+    positive pole survives with no disparity attached; fit on 311 volume,
+    because it is the variable the city already has in a database, and the model
+    learns which neighbourhoods call.
+    `bias_and_impact_testing` is entered as a warrant and is NOT sufficient. It
+    is a pre-deployment test, and at t=0 there is no disparity to find — the
+    model is uniformly mediocre. The disparity is produced over the following
+    two years by the model's own effect on the inspection schedule. This entry
+    is the seed's argument for a periodic re-testing term, which §3 does not
+    offer.
+svo:
+  subject: "under_reporting_by_neighbourhood@t"
+  verb: causes
+  obj: low_predicted_failure_risk
+  derived_from: "inferred:target_leakage#structural"
+glyph_block:
+  logogram: tally
+  superfix: visible_is_lit
+  subfix: non_discrimination
+metaphor_type: "structural (ATTENTION IS LIGHT — the model aims the lamp where the lamp has already been)"
+provenance: "acad:street_bump_2013"
