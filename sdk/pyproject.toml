@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nsjepa-contrib"
+version = "0.1.0"
+description = "Emit humanist neuro-symbolic dictionary entries from a deployed government AI system"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+dependencies = ["PyYAML>=6.0"]
+
+[project.scripts]
+nsjepa-contrib = "nsjepa_contrib.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[tool.setuptools.packages.find]
+include = ["nsjepa_contrib*"]
