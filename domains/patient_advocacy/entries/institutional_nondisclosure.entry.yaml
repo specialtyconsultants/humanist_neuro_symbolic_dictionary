@@ -1,0 +1,53 @@
+id: pad:institutional_nondisclosure
+lemma: institutional nondisclosure
+domain: patient_advocacy
+domain_sense: >
+  a provider acknowledges that a harm event occurred while withholding its
+  causal account from the harmed party
+status: provisional          # ethics footnote unwarranted — see warrants block
+grounding:
+  conceptual_region: [disclosure, comprehension, voluntariness]
+  glyphs:
+    - {form: document, peirce: icon, role: logogram}
+    - {form: severed-link, peirce: index, role: logogram}
+causal:
+  edges:
+    # --- individual scale ---
+    - {cause: institutional_nondisclosure, relation: prevents,
+       effect: informed_recourse, confidence: 0.80, provenance: cbs:nashville_2026-08-14#response}
+    - {cause: institutional_nondisclosure, relation: increases,
+       effect: time_to_regulatory_finding, confidence: 0.60, provenance: cbs:nashville_2026-08-14#response}
+    # --- institutional scale (the collective thread) ---
+    - {cause: suppressed_harm_event_capture, relation: prevents,
+       effect: system_level_safety_improvement, confidence: 0.85, provenance: "oig:OEI-06-18-00401#finding"}
+    - {cause: suppressed_harm_event_capture, relation: prevents,
+       effect: cross_patient_pattern_visibility, confidence: 0.80, provenance: "oig:OEI-06-18-00401#premise"}
+    - {cause: institutional_nondisclosure, relation: enables,
+       effect: suppressed_harm_event_capture, confidence: 0.50, provenance: "inferred:bridge#needs_grounding"}
+  interventions:
+    - "do(mandatory_causal_disclosure_to_harmed_party) removes institutional_nondisclosure"
+    - "do(external_harm_event_surveillance) removes suppressed_harm_event_capture"
+ethics:
+  principle_polarity: {autonomy: "-", justice: "-", non_maleficence: "+/-"}
+  warrants: []
+  # ^ NO MATCHING WARRANT IN norms/rules.yaml. The norms engine must not
+  #   manufacture permissibility. Escalate for a human normative decision.
+  balancing_note: >
+    institutions assert that withholding during an open investigation prevents
+    premature or incorrect statements (an accuracy claim under beneficence).
+    That claim is not currently warranted by any rule in the domain norm set,
+    hence non_maleficence is recorded as mixed rather than resolved. The justice
+    polarity is negative at BOTH scales: the individual is denied recourse, and
+    the patient population is denied the pattern evidence that would let a harm
+    be recognised as structural rather than idiosyncratic.
+svo:
+  subject: institutional_nondisclosure
+  verb: prevents
+  obj: informed_recourse
+  derived_from: cbs:nashville_2026-08-14#response
+glyph_block:
+  logogram: document
+  superfix: link_is_broken
+  subfix: autonomy
+metaphor_type: "structural (DISCLOSURE IS LIGHT — withheld account as opacity)"
+provenance: cbs:nashville_2026-08-14
