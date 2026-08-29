@@ -35,28 +35,38 @@ causal:
   # anywhere in the system. Nothing anywhere in the pipeline is in a position to
   # notice. That is the whole entry.
   edges:
-    - {cause: no_target_language_reader_in_issuing_body, relation: prevents,
+    - {id: e1, cause: no_target_language_reader_in_issuing_body, relation: prevents,
        effect: output_verification, confidence: 0.90,
-       provenance: "press:fema_alaska_translations_2023-01#vendor_review"}
-    - {cause: absent_output_verification, relation: enables,
+       provenance: "analytic:verification#definitional"}
+    - {id: e2, cause: absent_output_verification, relation: enables,
        effect: unverifiable_translation, confidence: 0.85,
-       provenance: "press:fema_alaska_translations_2023-01#findings"}
-    - {cause: service_of_notice, relation: causes,
-       effect: legal_effect_regardless_of_comprehension, confidence: 0.95,
-       provenance: "inferred:service_doctrine#needs_grounding"}
-    - {cause: unverifiable_translation, relation: prevents,
+       provenance: "analytic:verification#definitional"}
+    - {id: e3, cause: service_of_notice, relation: causes,
+       effect: legal_effect_regardless_of_comprehension, confidence: 0.90,
+       provenance: "analytic:service_doctrine#doctrinal_premise"}
+    - {id: e4, cause: unverifiable_translation, relation: prevents,
        effect: informed_recourse, confidence: 0.80,
        provenance: "press:fema_alaska_translations_2023-01#impact"}
-    - {cause: unverifiable_translation, relation: delays,
-       effect: error_discovery, confidence: 0.85,
+    # non_discrimination was argued in the balancing note and encoded nowhere.
+    # Added so the claim is checkable rather than asserted; honestly weak,
+    # because verification capacity by language community is not something
+    # anyone here has measured.
+    - {id: e6, cause: smallest_language_communities, relation: increases,
+       effect: no_target_language_reader_in_issuing_body, confidence: 0.65,
+       provenance: "inferred:verification_capacity#needs_grounding"}
+    - {id: e5, cause: unverifiable_translation, relation: delays,
+       effect: error_discovery, confidence: 0.80,
        provenance: "press:fema_alaska_translations_2023-01#timeline"}
   interventions:
     - "do(back_translation_review_by_independent_speaker) removes absent_output_verification"
     - "do(toll_deadlines_until_verified_delivery) removes legal_effect_regardless_of_comprehension"
     - "do(community_reader_panel_on_retainer) removes no_target_language_reader_in_issuing_body"
 ethics:
-  principle_polarity: {meaningful_access: "-", due_process: "-",
-                       non_discrimination: "-", transparency: "+/-"}
+  principle_polarity:
+    meaningful_access:  {polarity: "-",   supported_by: [e1, e2, e4]}
+    due_process:        {polarity: "-",   supported_by: [e3, e4]}
+    non_discrimination: {polarity: "-",   supported_by: [e6]}
+    transparency:       {polarity: "+/-", supported_by: [e2]}
   warrants:
     - {claim: accessibility_508_multilingual, principle: meaningful_access}
   balancing_note: >

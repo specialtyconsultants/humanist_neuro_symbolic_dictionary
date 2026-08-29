@@ -32,28 +32,34 @@ causal:
   # unexercised, it is unavailable. An officer's signed report and a model's
   # paragraph become the same object, and no later process can separate them.
   edges:
-    - {cause: draft_erased_on_export, relation: prevents,
+    - {id: e1, cause: draft_erased_on_export, relation: prevents,
        effect: attribution_of_authorship, confidence: 0.90,
-       provenance: "kcpao:2024-09-20_memo#transparency"}
-    - {cause: absent_attribution_of_authorship, relation: prevents,
+       provenance: "regulator:kcpao_2024-09-20_memo#transparency"}
+    - {id: e2, cause: absent_attribution_of_authorship, relation: prevents,
        effect: informed_recourse, confidence: 0.85,
-       provenance: "kcpao:2024-09-20_memo#evidentiary"}
-    - {cause: generated_official_record, relation: causes,
-       effect: unexercised_provenance, confidence: 0.75,
+       provenance: "regulator:kcpao_2024-09-20_memo#evidentiary"}
+    - {id: e3, cause: generated_official_record, relation: causes,
+       effect: unexercised_provenance, confidence: 0.70,
        provenance: "inferred:read_cost_asymmetry#structural"}
-    - {cause: unexercised_provenance, relation: increases,
-       effect: propagation_of_uncorrected_error, confidence: 0.80,
+    - {id: e4, cause: unexercised_provenance, relation: increases,
+       effect: propagation_of_uncorrected_error, confidence: 0.70,
        provenance: "inferred:downstream_reliance#needs_grounding"}
-    - {cause: generated_official_record, relation: increases,
-       effect: caseworker_throughput, confidence: 0.80,
+    - {id: e5, cause: generated_official_record, relation: increases,
+       effect: caseworker_throughput, confidence: 0.60,
        provenance: "vendor:draft_one_claims#time_saved"}
   interventions:
     - "do(retain_pre_edit_draft_diffable_against_filed_record) removes draft_erased_on_export"
     - "do(mandatory_source_citation_per_assertion) lowers unexercised_provenance"
     - "do(exclude_ai_narrative_from_charging_documents) removes informed_recourse"
 ethics:
-  principle_polarity: {transparency: "-", due_process: "-",
-                       best_value_integrity: "+"}
+  principle_polarity:
+    transparency: {polarity: "-", supported_by: [e1, e2]}
+    due_process:  {polarity: "-", supported_by: [e2]}
+  # DROPPED: best_value_integrity "+". Its only support was e5, the vendor's own
+  # time-saved claim, capped at the vendor ceiling of 0.60. A vendor asserting
+  # that its product works is testimony in interest and cannot carry a positive
+  # polarity alone. The concession stays in the balancing note, where it reads
+  # as a concession rather than counting as a finding.
   warrants:
     - {claim: audit_log_and_explainability, principle: transparency}
     - {claim: source_record_retention, principle: transparency}   # source: proposed
@@ -74,10 +80,10 @@ svo:
   subject: draft_erased_on_export
   verb: prevents
   obj: attribution_of_authorship
-  derived_from: "kcpao:2024-09-20_memo#transparency"
+  derived_from: "regulator:kcpao_2024-09-20_memo#transparency"
 glyph_block:
   logogram: ledger
   superfix: link_is_broken
   subfix: transparency
 metaphor_type: "ontological (THE SUMMARY IS THE FILE — the map laminated over the territory)"
-provenance: "kcpao:2024-09-20_memo"
+provenance: "regulator:kcpao_2024-09-20_memo"

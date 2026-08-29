@@ -21,3 +21,32 @@ jobs:
       # warrant chain + provenance. This job fails the build if any audit
       # trace in eval/audit_traces is missing a warrant or a provenance record.
       - run: pytest tests/integration -k audit -q
+
+  corpus:
+    # Everything the entry files themselves have to satisfy. Split out from
+    # `test` because it runs over data rather than code, and because a
+    # contribution PR that touches no Python still has to pass it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: pip install ./sdk
+      - name: SDK unit tests
+        run: pip install pytest && pytest sdk/tests -q
+
+      # Type G/C/E structural checks over every entry in the repo, hand-written
+      # and contributed alike. ERROR blocks; WARN does not, because an honestly
+      # marked weak edge is a contribution, and a build that failed over one
+      # would teach contributors to launder it into something that passes.
+      - name: Validate entries
+        run: |
+          nsjepa-contrib validate --dictionary-root . --pattern 'domains/*/entries/*.entry.yaml'
+          nsjepa-contrib validate --dictionary-root . --pattern 'contrib/**/*.entry.yaml'
+
+      # The corpus rests on unrelated entries converging on shared causal nodes,
+      # and NOTHING ELSE FAILS WHEN THAT DIES — every entry still validates, the
+      # graph just quietly stops being one graph. This is the only check that
+      # would notice.
+      - name: Convergence regression
+        run: python tools/convergence_report.py --check

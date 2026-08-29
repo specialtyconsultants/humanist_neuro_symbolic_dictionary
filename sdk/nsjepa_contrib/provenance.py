@@ -24,9 +24,30 @@ class Tier:
     independent: bool       # independent of the contributing vendor?
     measured: bool          # mechanically observed rather than asserted?
     gloss: str
+    #: May an edge on this tier be the independent support for a POSITIVE
+    #: polarity? False for `analytic`, which is independent in the sense that
+    #: any reader can check it and useless as evidence that anything worked —
+    #: without this flag a contributor could define its way to a favourable
+    #: ethics footnote.
+    can_support_positive: bool = True
 
 
 TIERS: dict[str, Tier] = {
+    # --- analytic -------------------------------------------------------------
+    # True from the definitions, not from the evidence. `inferred` was carrying
+    # both of these and its 0.70 ceiling is right for one and wrong for the
+    # other: "an application rejected at intake produces no adjudicated
+    # decision" is not a weak empirical guess, it is what the entry's own
+    # domain_sense says, and no amount of fieldwork would move it.
+    #
+    # The rule, and it is checkable by a reviewer without leaving the file: an
+    # analytic edge must follow from this entry's `domain_sense` or from a
+    # doctrinal premise named in the section. Anything requiring an observation
+    # about the world is `inferred` at 0.70, however obvious it feels.
+    "analytic": Tier("analytic", 0.95, True, False,
+                     "true by the definitions in this entry, or by a named doctrinal "
+                     "premise; evidence can neither raise nor lower it",
+                     can_support_positive=False),
     # --- independent, adjudicated -------------------------------------------
     "court": Tier("court", 0.95, True, False,
                   "a judgment or holding of a court"),
@@ -34,6 +55,14 @@ TIERS: dict[str, Tier] = {
                       "a finding by a regulator, inspector general, or auditor general"),
     "legislature": Tier("legislature", 0.85, True, False,
                         "a parliamentary or legislative inquiry finding"),
+    # --- independent, documentary -------------------------------------------
+    "standards": Tier("standards", 0.90, True, False,
+                      "a published standard or list maintained by a recognised body "
+                      "(ISMP high-alert list, NIST AI RMF, Section 508)"),
+    "instrument": Tier("instrument", 0.90, True, False,
+                       "the text of the procurement instrument or contract under "
+                       "analysis. Documentary: it establishes what the instrument "
+                       "SAYS, never that the thing it describes works"),
     # --- independent, unadjudicated -----------------------------------------
     "acad": Tier("acad", 0.85, True, False,
                  "peer-reviewed or working-paper empirical work"),

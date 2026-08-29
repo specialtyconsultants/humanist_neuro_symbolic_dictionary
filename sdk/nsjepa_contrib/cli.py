@@ -34,7 +34,7 @@ def cmd_init(a) -> int:
     if unclaimed:
         print("\nSelectable terms NOT claimed by this deployment:")
         for t in unclaimed:
-            print(f"  {t:<32} discharges {ALL_TERMS[t][1]}")
+            print(f"  {t:<32} discharges {ALL_TERMS[t].principle}")
         print("\nEvery resident-facing harm this deployment produces will carry "
               "`warrants: []`\nand escalate. That is the correct behaviour, not a "
               "misconfiguration -- but if\nthe solicitation did require a term, "
@@ -43,12 +43,26 @@ def cmd_init(a) -> int:
 
 
 def cmd_terms(a) -> int:
+    def show(terms):
+        for t, spec in terms.items():
+            mark = "" if spec.observable else "  [NOT OBSERVABLE from inside a product]"
+            print(f"  {t:<33} {spec.principle:<30}{mark}")
+            print(f"  {'':<33} {spec.label}")
+
     print("Interstate Section 3 -- selectable today:")
-    for t, (label, principle) in GOVERNANCE_TERMS.items():
-        print(f"  {t:<32} {principle:<30} {label}")
+    show(GOVERNANCE_TERMS)
     print("\nRequired by the CAT-01..09 seed, no checkbox on the form:")
-    for t, (label, principle) in PROPOSED_TERMS.items():
-        print(f"  {t:<32} {principle:<30} {label}")
+    show(PROPOSED_TERMS)
+    print(
+        "\nHalf the governance surface the form sells cannot be verified by the "
+        "party being\nasked to verify it. Three of the six selectable terms are "
+        "facts about corporate\nconduct, hosting, and what was left OUT of a "
+        "synthesis; no runtime probe reaches\nthem, and none ever will.\n"
+        "\n  verifiable_governance_telemetry   buys the half a product can measure\n"
+        "  independent_governance_audit      buys the half it cannot\n"
+        "\nNeither is on the form today. The first is the term that makes this SDK "
+        "worth\ninstalling; the second is the term that makes the rest of the "
+        "posture checkable,\nand it closes with money rather than with code.")
     return 0
 
 
@@ -73,9 +87,17 @@ def cmd_assess(a) -> int:
     return 0
 
 
+def cmd_convergence(a) -> int:
+    import subprocess
+    cmd = [sys.executable, os.path.join(a.dictionary_root, "tools",
+                                        "convergence_report.py"),
+           "--root", a.dictionary_root] + (["--check"] if a.check else [])
+    return subprocess.call(cmd)
+
+
 def cmd_validate(a) -> int:
     findings = (validate_file(a.path, a.dictionary_root) if a.path
-                else validate_tree(a.dictionary_root))
+                else validate_tree(a.dictionary_root, a.pattern))
     for f in findings:
         print(f)
     errors = sum(f.level is Level.ERROR for f in findings)
@@ -181,7 +203,15 @@ def build_parser() -> argparse.ArgumentParser:
 
     v = sub.add_parser("validate", help="validate entries (default: whole contrib/ tree)")
     v.add_argument("path", nargs="?")
+    v.add_argument("--pattern", default="contrib/**/*.entry.yaml",
+                   help="glob relative to --dictionary-root")
     v.set_defaults(func=cmd_validate)
+
+    c = sub.add_parser("convergence",
+                       help="report shared causal nodes across the corpus")
+    c.add_argument("--check", action="store_true",
+                   help="fail if a previously shared node is no longer shared")
+    c.set_defaults(func=cmd_convergence)
 
     vo = sub.add_parser("vocab", help="resolve node names against the canonical registry")
     vo.add_argument("--domain", default="gov_procurement")

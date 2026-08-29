@@ -15,38 +15,90 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass, field, asdict
+from typing import NamedTuple
 
-#: Interstate §3, verbatim in meaning. term id -> (label, principle discharged)
-GOVERNANCE_TERMS: dict[str, tuple[str, str]] = {
-    "human_in_the_loop":
-        ("A person decides on every consequential action.", "due_process"),
-    "audit_log_and_explainability":
-        ("Every output traceable and reviewable.", "transparency"),
-    "exit_ready_no_lock_in":
-        ("Open formats; data portable on exit.", "continuity_of_public_capacity"),
-    "data_residency_no_training":
-        ("No training on resident data; defined hosting.", "data_sovereignty"),
-    "bias_and_impact_testing":
-        ("Pre-deployment disparate-impact review.", "non_discrimination"),
-    "accessibility_508_multilingual":
-        ("Section 508 + multilingual delivery.", "meaningful_access"),
+class Term(NamedTuple):
+    """A governance term, and whether anything can check it.
+
+    `observable` is the field that matters and the one the form has no column
+    for. A term the vendor cannot observe from inside its own product is not
+    thereby met or unmet — it is UNMEASURED, and the SDK says so rather than
+    converting an assertion into evidence by restating it.
+    """
+    label: str
+    principle: str
+    observable: bool = True
+    source: str = "interstate:s3"
+
+
+#: Interstate §3, verbatim in meaning.
+GOVERNANCE_TERMS: dict[str, Term] = {
+    "human_in_the_loop": Term(
+        "A person decides on every consequential action.", "due_process"),
+    "audit_log_and_explainability": Term(
+        "Every output traceable and reviewable.", "transparency"),
+    "exit_ready_no_lock_in": Term(
+        "Open formats; data portable on exit.", "continuity_of_public_capacity",
+        observable=False),
+    "data_residency_no_training": Term(
+        "No training on resident data; defined hosting.", "data_sovereignty",
+        observable=False),
+    "bias_and_impact_testing": Term(
+        "Pre-deployment disparate-impact review.", "non_discrimination"),
+    "accessibility_508_multilingual": Term(
+        "Section 508 + multilingual delivery.", "meaningful_access"),
 }
 
-#: Required by the CAT-01..09 seed; not offered on the form.
-PROPOSED_TERMS: dict[str, tuple[str, str]] = {
-    "no_deprivation_pending_review":
-        ("Benefits continue while a flag is investigated.", "due_process"),
-    "source_record_retention":
-        ("Source and pre-edit draft retained, diffable against the filed record.",
-         "transparency"),
-    "appealable_intake_decision":
-        ("Every rejection yields a decision that can be appealed.", "due_process"),
-    "minority_view_preservation":
-        ("Un-collapsed minority positions carried separately from volume.",
-         "fair_treatment"),
+#: Required by the CAT-01..09 seed; no checkbox on the form.
+PROPOSED_TERMS: dict[str, Term] = {
+    "no_deprivation_pending_review": Term(
+        "Benefits continue while a flag is investigated.", "due_process",
+        source="proposed"),
+    "source_record_retention": Term(
+        "Source and pre-edit draft retained, diffable against the filed record.",
+        "transparency", source="proposed"),
+    "appealable_intake_decision": Term(
+        "Every rejection yields a decision that can be appealed.", "due_process",
+        source="proposed"),
+    "minority_view_preservation": Term(
+        "Un-collapsed minority positions carried separately from volume.",
+        "fair_treatment", observable=False, source="proposed"),
+
+    # ---- the forcing function ------------------------------------------------
+    # Everything else in this package is well-formed and, absent a term that
+    # buys it, nobody installs it: a vendor ships something capable of
+    # withdrawing its own compliance claim only when not shipping it costs more.
+    # This is the term that makes that true, and it is the only one on any of
+    # these lists that is verified by mechanism rather than by assertion.
+    #
+    # It also does something for the buyer none of the six do. The other terms
+    # are checkable at proposal time and unfalsifiable afterwards; this one is
+    # continuous, and every failure in the CAT-01..09 seed happened after award.
+    "verifiable_governance_telemetry": Term(
+        "The system emits signed, continuous evidence of whether the other "
+        "governance terms were met in production, on a schedule, to the issuing "
+        "body and to a common repository.",
+        "transparency", source="proposed"),
+
+    # ---- the other half of the same argument ---------------------------------
+    # Telemetry cannot reach the terms marked observable=False, and no amount of
+    # vendor instrumentation ever will: they are facts about corporate conduct,
+    # hosting, and what was NOT in a synthesis. Roughly half the governance
+    # surface the form sells cannot be verified by the party being asked to
+    # verify it. That gap closes with money, not with code — an independent
+    # assessor, priced as its own CLIN, whose findings enter at the `audit:`
+    # tier and therefore count as independent support where a vendor's do not.
+    "independent_governance_audit": Term(
+        "A third-party assessor, engaged and paid by the issuing body rather "
+        "than the vendor, verifies the terms no runtime probe can reach and "
+        "files findings at the audit tier.",
+        "coi_avoidance", observable=False, source="proposed"),
 }
 
-ALL_TERMS = {**GOVERNANCE_TERMS, **PROPOSED_TERMS}
+ALL_TERMS: dict[str, Term] = {**GOVERNANCE_TERMS, **PROPOSED_TERMS}
+
+#: Terms no probe inside a vendor product can honestly reach.
+UNOBSERVABLE = tuple(t for t, spec in ALL_TERMS.items() if not spec.observable)
 
 CATEGORIES = {
     "CAT-01": "Resident service assistants",
@@ -100,7 +152,7 @@ class ContributorConfig:
     @property
     def claimed_principles(self) -> dict[str, str]:
         """principle -> the term claimed to discharge it."""
-        return {ALL_TERMS[t][1]: t for t in self.governance_terms}
+        return {ALL_TERMS[t].principle: t for t in self.governance_terms}
 
     def selected(self, term: str) -> bool:
         return term in self.governance_terms

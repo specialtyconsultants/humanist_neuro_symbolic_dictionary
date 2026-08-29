@@ -40,7 +40,8 @@ controls would be worth less than nothing, because it would look like evidence.
 from .builder import BuildReport, EntryBuilder, GateViolation
 from .config import (ALL_TERMS, CATEGORIES, GOVERNANCE_TERMS, PROPOSED_TERMS,
                      ContributorConfig)
-from .derive import Status, TermFinding, assess, derive_edges
+from .derive import (ComplianceRecord, Status, TermFinding, assess,
+                     compliance_record, derive_edges)
 from .observer import DeploymentObserver, ObservationLog
 from .provenance import TIERS, ProvenanceError
 from .vocabulary import Vocabulary
@@ -50,5 +51,6 @@ __all__ = [
     "ALL_TERMS", "BuildReport", "CATEGORIES", "ContributorConfig",
     "DeploymentObserver", "EntryBuilder", "GOVERNANCE_TERMS", "GateViolation",
     "ObservationLog", "PROPOSED_TERMS", "ProvenanceError", "Status", "TIERS",
-    "TermFinding", "Vocabulary", "assess", "derive_edges", "__version__",
+    "ComplianceRecord", "TermFinding", "Vocabulary", "assess",
+    "compliance_record", "derive_edges", "__version__",
 ]

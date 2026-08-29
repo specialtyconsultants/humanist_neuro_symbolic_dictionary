@@ -22,16 +22,16 @@ causal:
   # that gives the same answer produces a much smaller harm because nobody
   # treats it as the position of the enforcing authority.
   edges:
-    - {cause: ungrounded_generation, relation: causes,
-       effect: unlawful_advice_from_official_channel, confidence: 0.85,
-       provenance: "markup:nyc_mycity_2024-03-29#findings"}
-    - {cause: official_channel_branding, relation: increases,
-       effect: advice_reliance, confidence: 0.75,
+    - {id: e1, cause: ungrounded_generation, relation: causes,
+       effect: unlawful_advice_from_official_channel, confidence: 0.80,
+       provenance: "press:markup_nyc_mycity_2024-03-29#findings"}
+    - {id: e2, cause: official_channel_branding, relation: increases,
+       effect: advice_reliance, confidence: 0.70,
        provenance: "inferred:authority_transfer#needs_grounding"}
-    - {cause: advice_reliance, relation: increases,
+    - {id: e3, cause: advice_reliance, relation: increases,
        effect: resident_legal_exposure, confidence: 0.80,
-       provenance: "markup:nyc_mycity_2024-03-29#findings"}
-    - {cause: unretained_conversation, relation: prevents,
+       provenance: "press:markup_nyc_mycity_2024-03-29#findings"}
+    - {id: e4, cause: unretained_conversation, relation: prevents,
        effect: informed_recourse, confidence: 0.70,
        provenance: "inferred:evidentiary#needs_grounding"}
   interventions:
@@ -39,8 +39,12 @@ causal:
     - "do(transcript_retention_with_citation) enables informed_recourse"
     - "do(human_handoff_on_enforcement_topics) lowers resident_legal_exposure"
 ethics:
-  principle_polarity: {resident_non_maleficence: "-", meaningful_access: "+",
-                       due_process: "-"}
+  principle_polarity:
+    resident_non_maleficence: {polarity: "-", supported_by: [e1, e2, e3]}
+    due_process:              {polarity: "-", supported_by: [e4]}
+  # DROPPED: meaningful_access "+". Round-the-clock multilingual answering is a
+  # real access gain, and this entry asserted it with no edge at all — the
+  # positive pole lived entirely in the balancing note. It stays there.
   warrants:
     - {claim: human_in_the_loop, principle: due_process}
     - {claim: accessibility_508_multilingual, principle: meaningful_access}
@@ -60,10 +64,10 @@ svo:
   subject: unlawful_advice_from_official_channel
   verb: increases
   obj: resident_legal_exposure
-  derived_from: "markup:nyc_mycity_2024-03-29#findings"
+  derived_from: "press:markup_nyc_mycity_2024-03-29#findings"
 glyph_block:
   logogram: seal
   superfix: authority_is_worn
   subfix: protective_duty
 metaphor_type: "ontological (THE CHANNEL IS THE STATE — a vendor model wearing the seal)"
-provenance: "markup:nyc_mycity_2024-03-29"
+provenance: "press:markup_nyc_mycity_2024-03-29"

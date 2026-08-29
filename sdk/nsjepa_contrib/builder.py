@@ -4,11 +4,11 @@ Four gates run at `build()`. They are the whole reason a vendor-authored entry
 is worth reading, so none of them is configurable off:
 
   1. PROVENANCE   every edge declares a tier; the tier caps its confidence.
-  2. CONFLICT     a positive polarity needs one independent-tier edge. Adverse
-                  polarities need none -- testimony against interest is credible
-                  on its own, and requiring corroboration before a vendor may
-                  report its own failure would suppress the contributions that
-                  matter most.
+  2. CONFLICT     every polarity names the edges that earn it, and a claim needs
+                  INDEPENDENT support unless it is adverse to the submitter.
+                  Testimony against interest is credible on its own; a negative
+                  finding aimed at somebody else is not testimony against
+                  interest merely because it is negative.
   3. WARRANT      warrants may only cite claims that exist in the domain's
                   rules.yaml, and only for terms the telemetry found MET. A
                   claimed-but-unmet term is dropped and the reason recorded.
@@ -28,8 +28,7 @@ import yaml
 from .config import ALL_TERMS, ContributorConfig
 from .derive import Status, TermFinding, assess, derive_edges
 from .observer import ObservationLog
-from .provenance import (POSITIVE_CLAIM_REQUIRES_INDEPENDENT, ProvenanceError,
-                         check_confidence, parse)
+from .provenance import ProvenanceError, check_confidence, parse
 from .vocabulary import Vocabulary
 
 
@@ -118,7 +117,9 @@ class EntryBuilder:
         self._glyphs: list[dict] = []
         self._edges: list[dict] = []
         self._interventions: list[str] = []
-        self._polarity: dict[str, str] = {}
+        self._polarity: dict[str, dict] = {}
+        self._derived_support: dict[str, list[str]] = {}
+        self._adverse_to: list[str] | None = None
         self._claimed_warrants: list[str] = []
         self._balancing = ""
         self._svo: dict | None = None
@@ -133,25 +134,88 @@ class EntryBuilder:
 
     # -- Type C ------------------------------------------------------------
     def edge(self, cause: str, relation: str, effect: str, *,
-             confidence: float, provenance: str):
-        self._edges.append({"cause": cause, "relation": relation, "effect": effect,
+             confidence: float, provenance: str, id: str = ""):
+        """Add a causal edge. Returns self; the id is auto-assigned if omitted.
+
+        Use `last_edge_id()` to cite it from a polarity claim."""
+        self._edges.append({"id": id or f"e{len(self._edges) + 1}",
+                            "cause": cause, "relation": relation, "effect": effect,
                             "confidence": confidence, "provenance": provenance})
         return self
+
+    def last_edge_id(self) -> str:
+        return self._edges[-1]["id"]
 
     def intervention(self, text: str):
         self._interventions.append(text)
         return self
 
     def from_observations(self, log: ObservationLog, *, threshold: float | None = None):
-        """Derive edges and term findings from a closed observation window."""
+        """Derive edges and term findings from a closed observation window.
+
+        Telemetry produces the edges AND the polarity claims those edges earn,
+        already linked. A term found NOT_MET is an adverse finding on the
+        principle it was meant to discharge, and the edges derived from that
+        failure are exactly its support — so there is no step at which a person
+        writes down a normative conclusion the graph does not reach.
+        """
         from .derive import DEFAULT_THRESHOLD
         self._findings = assess(self.config, log, threshold or DEFAULT_THRESHOLD)
-        self._edges.extend(derive_edges(self.config, log, self._findings))
+        before = len(self._edges)
+        derived = derive_edges(self.config, log, self._findings)
+        for i, e in enumerate(derived, start=before + 1):
+            e["id"] = f"e{i}"
+        self._edges.extend(derived)
+        failed = {f.principle for f in self._findings if f.status is Status.NOT_MET}
+        for principle in failed:
+            self._derived_support.setdefault(principle, [])
+            self._derived_support[principle].extend(e["id"] for e in derived)
         return self
 
     # -- Type E ------------------------------------------------------------
+    def claim(self, principle: str, sign: str, *, because: list[str] | None = None):
+        """Assert a polarity, naming the edges that earn it.
+
+        `because` holds edge ids from this entry. It is not bookkeeping. Before
+        it existed, Type G was checkable against the glyph vocabulary and Type C
+        against its provenance tiers, while Type E was an assertion sitting next
+        to the graph with no link to it — the only footnote a reader had to take
+        on faith. A claim with nothing behind it is refused at build.
+        """
+        entry = self._polarity.setdefault(principle, {"polarity": sign,
+                                                      "supported_by": []})
+        entry["polarity"] = sign
+        for eid in (because or []):
+            if eid not in entry["supported_by"]:
+                entry["supported_by"].append(eid)
+        return self
+
     def polarity(self, **principle_to_sign: str):
-        self._polarity.update(principle_to_sign)
+        """Shorthand for `claim` with no explicit support. Kept because a
+        contributor will reach for it; it builds only where `from_observations`
+        supplied the support, and otherwise fails the gate saying so."""
+        for principle, sign in principle_to_sign.items():
+            self.claim(principle, sign)
+        return self
+
+    def adverse_to(self, *parties: str):
+        """Who this entry's findings cut against: vendor, operator, resident.
+
+        Required on every contributed entry, and deliberately not defaulted.
+        The independence requirement keys on it, because testimony against
+        interest is credible on its own and a submitter's finding that is
+        adverse only to somebody ELSE is not testimony against interest merely
+        because it is phrased negatively. A vendor reporting "the county
+        configured us to deprive first" files a negative finding that is
+        favourable to the vendor, and it needs corroboration like any other
+        favourable claim.
+        """
+        allowed = {"vendor", "operator", "resident"}
+        bad = set(parties) - allowed
+        if bad:
+            raise GateViolation(f"unknown adverse_to parties {sorted(bad)}; "
+                                f"one or more of {sorted(allowed)}")
+        self._adverse_to = sorted(set(parties))
         return self
 
     def claim_warrant(self, term: str):
@@ -200,18 +264,66 @@ class EntryBuilder:
             if section == "needs_grounding":
                 r.needs_grounding.append(e["provenance"])
 
-        # GATE 2 -- conflict of interest on positive polarities.
-        if POSITIVE_CLAIM_REQUIRES_INDEPENDENT:
-            positives = [p for p, s in self._polarity.items() if s.startswith("+") and s != "+/-"]
-            if positives and not any(t.independent for t in tiers):
+        # GATE 2 -- every polarity is earned by named edges, and a claim needs
+        # INDEPENDENT support unless it is adverse to the party submitting it.
+        #
+        # The rule used to be stated on the sign of the claim: positives need
+        # corroboration, negatives do not. That has a hole. A vendor reporting
+        # "the county configured us to deprive first" is filing a NEGATIVE
+        # finding that is adverse to the operator and favourable to the vendor,
+        # and it sailed through at face value — which is precisely the
+        # contribution a vendor has an incentive to file.
+        if self._adverse_to is None:
+            raise GateViolation(
+                "entry does not declare `adverse_to`. Say who these findings cut "
+                "against — any of vendor, operator, resident. It is not defaulted "
+                "because the independence requirement keys on it, and a default "
+                "would decide the question the contributor is supposed to answer."
+            )
+        by_id = {e["id"]: e for e in self._edges}
+        submitter = "vendor"
+        against_submitter = submitter in self._adverse_to
+        for principle, claim in self._polarity.items():
+            support = claim["supported_by"] + self._derived_support.get(principle, [])
+            support = list(dict.fromkeys(support))
+            claim["supported_by"] = support
+            if not support:
                 raise GateViolation(
-                    f"entry asserts positive polarity on {positives} with no "
-                    f"independent-tier edge. Tiers present: "
-                    f"{sorted({t.name for t in tiers})}. A vendor reporting that its "
-                    f"own deployment harmed someone is testifying against interest "
-                    f"and is believed; a vendor reporting that it worked needs "
-                    f"somebody else to say so. Commission an `audit:` tier finding, "
-                    f"cite `acad:`/`press:`/`regulator:`, or drop the positive pole."
+                    f"polarity {principle}={claim['polarity']!r} names no supporting "
+                    f"edge. Cite the edges that earn it with "
+                    f"`.claim({principle!r}, {claim['polarity']!r}, because=[...])`, "
+                    f"or drop the claim. An unsupported normative assertion is the "
+                    f"one thing in this schema nothing else can check."
+                )
+            missing = [e for e in support if e not in by_id]
+            if missing:
+                raise GateViolation(
+                    f"polarity {principle} cites edge(s) {missing} that do not "
+                    f"exist in this entry")
+            positive = claim["polarity"] == "+"
+            needs_independent = positive or not against_submitter
+            if not needs_independent:
+                continue
+            usable = [by_id[e] for e in support]
+            ok = []
+            for e in usable:
+                tier, _, _ = parse(e["provenance"])
+                if tier.independent and (tier.can_support_positive or not positive):
+                    ok.append(tier.name)
+            if not ok:
+                why = ("is positive" if positive else
+                       f"is not adverse to the submitter (adverse_to="
+                       f"{self._adverse_to})")
+                raise GateViolation(
+                    f"polarity {principle}={claim['polarity']!r} {why}, so it needs "
+                    f"independent support, and its edges are all on "
+                    f"{sorted({parse(by_id[e]['provenance'])[0].name for e in support})}. "
+                    f"Commission an `audit:` finding under "
+                    f"`independent_governance_audit`, cite "
+                    f"`acad:`/`press:`/`regulator:`/`court:`, or drop the claim. "
+                    f"Note that `analytic:` is independent and cannot support a "
+                    f"positive polarity: defining your way to a favourable ethics "
+                    f"footnote is the failure this excludes."
                 )
 
         # GATE 3 -- warrants are earned, not declared.
@@ -220,7 +332,7 @@ class EntryBuilder:
         for term in self._claimed_warrants:
             if term not in ALL_TERMS:
                 raise GateViolation(f"unknown governance term {term!r}")
-            principle = ALL_TERMS[term][1]
+            principle = ALL_TERMS[term].principle
             if term not in self.norms.claims:
                 raise GateViolation(
                     f"no rule in domains/{self.config.domain}/norms/rules.yaml "
@@ -321,6 +433,7 @@ class EntryBuilder:
             "ethics": {
                 "principle_polarity": self._polarity,
                 "warrants": warrants,
+                "adverse_to": self._adverse_to,
                 "balancing_note": self._balancing,
             },
             "svo": self._svo,

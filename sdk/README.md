@@ -76,14 +76,26 @@ from nsjepa_contrib import ContributorConfig, DeploymentObserver, EntryBuilder
 cfg = ContributorConfig.load()
 obs = DeploymentObserver(cfg.deployment_id)
 
-# wherever a determination is made
-obs.record_action(human_reviewed=True, review_preceded_effect=reviewer_signed_off_first)
+# The probes take EVENTS, not conclusions. You are never asked whether the
+# review came first; you record that each thing happened, where it happens, and
+# the ordering is derived from timestamps the SDK stamps itself.
 
-# wherever the benefit is actually stopped — usually a different service,
-# and the gap between the two is exactly what this probe is for
-obs.record_deprivation(case_ref, reviewed_first=reviewer_signed_off_first)
+# wherever a person actually decides
+obs.record_human_decision(case_ref)
+
+# wherever the determination actually takes effect on somebody
+obs.record_effect(case_ref)
+
+# wherever the benefit is actually stopped — usually a different service, and
+# the gap between the two is exactly what this probe is for
+obs.record_deprivation(case_ref)
 obs.record_review_completed(case_ref)
 ```
+
+An earlier version asked you for `review_preceded_effect=True/False` and treated
+the answer as a measurement. That is a judgement wearing a measurement's
+clothes. You can still decline to instrument a path; you can no longer get the
+ordering wrong by accident, which is the way this error actually happens.
 
 and at the end of a reporting window:
 
@@ -93,14 +105,26 @@ entry, report = (
                  lemma="unreviewed eligibility determination",
                  domain_sense="an eligibility outcome issued as the position of "
                               "the agency with no human having opened the file")
-    .from_observations(obs.close_window())
+    .from_observations(log)
+    .adverse_to("vendor", "resident")     # who these findings cut against
     .claim_warrant("human_in_the_loop")
-    .polarity(due_process="-", resident_non_maleficence="-")
+    .polarity(due_process="-")            # auto-linked: see below
+    .claim("resident_non_maleficence", "-", because=["e1", "e2"])
     .balancing_note("...")
     .build()
 )
 print("\n".join(report.lines()))
+
+# ALWAYS emit the window record, entry or no entry. It is the denominator.
+rec = compliance_record(cfg, log, assess(cfg, log), produced_entry=bool(entry))
+write_compliance(rec)
 ```
+
+`due_process` needs no `because=`, because it is the principle
+`human_in_the_loop` discharges: failing that term auto-links the edges the
+failure derived. `resident_non_maleficence` maps to no governance term, so
+nothing links it automatically and the gate refuses it until you name the edges.
+That refusal is the feature.
 
 A worked end-to-end example, including a simulated deployment, is in [`examples/cat02_benefits.py`](examples/cat02_benefits.py).
 
@@ -131,13 +155,32 @@ Runtime edges are additionally shrunk toward zero for small samples, so one adve
 
 An edge you could not ground says so in the identifier: `inferred:<what>#needs_grounding`. Validation reports these as open grounding targets, not as errors. **An honestly-marked weak edge is a contribution; a tool that failed the build over one would teach you to launder it into something that passes.**
 
-### 2. Conflict of interest — the asymmetry
+### 2. Conflict of interest — who the finding cuts against
 
-> A positive polarity needs at least one independent-tier edge. An adverse polarity needs none.
+Every polarity names the edges that earn it, and **a claim needs independent
+support unless it is adverse to the party submitting it.**
 
-A vendor reporting that its own deployment harmed someone is testifying against interest and is believed. A vendor reporting that it worked is testifying in interest and needs somebody else to say so. Commission an `audit:` tier finding, cite independent work, or drop the positive pole.
+The rule used to be stated on the *sign* of the claim: positives need
+corroboration, negatives do not. That has a hole. A vendor reporting *"the
+county configured us to deprive first"* is filing a **negative** finding that is
+adverse to the operator and favourable to the vendor, and it sailed through at
+face value — which is precisely the contribution a vendor has an incentive to
+file. So `adverse_to` is required on every contribution, it is deliberately not
+defaulted, and the requirement keys on it.
 
-This is the control that makes the corpus usable. Without it you would have a marketing channel with a schema.
+Testimony against interest is credible on its own. A negative finding aimed at
+somebody else is not testimony against interest merely because it is negative.
+
+One tier is independent and still cannot support a *positive* claim:
+`analytic:`, which is true from the definitions. Without that exclusion a
+contributor could define its way to a favourable ethics footnote.
+
+Before `supported_by` existed, Type G was checkable against the glyph
+vocabulary and Type C against its provenance tiers, and **Type E was an
+assertion sitting beside the graph with no link to it** — the only footnote a
+reader had to take on faith. Applying the rule to the nine hand-written
+`gov_procurement` entries dropped four of their five positive polarities. Only
+one had independent, non-analytic support.
 
 ### 3. Warrants are earned, not declared
 
@@ -234,10 +277,73 @@ Bundles carry a SHA-256 per file and refuse to unpack anything outside `contrib/
 | `assess --log <json>` | score an observation window against claimed terms |
 | `validate [path]` | validate one entry, or the whole `contrib/` tree |
 | `vocab [names...]` | resolve node names against the canonical registry |
+| `convergence [--check]` | shared causal nodes across the corpus; `--check` fails on regression |
 | `bundle` / `verify` | air-gapped packaging and receipt |
 | `submit` | open a PR against the common repo |
 
 `validate` exits non-zero on ERROR only. Warnings are informational by design.
+
+---
+
+## The denominator
+
+A fully compliant window derives no edges and therefore no entry — correct,
+because meeting your terms is a compliance fact and not a claim about the world.
+The consequence is survivorship: without a record that the window happened, the
+corpus fills only with failures and has no denominator, and the first person to
+compute *"X% of CAT-02 deployments deprive before review"* over it gets a number
+that means nothing and looks authoritative.
+
+So emit a `ComplianceRecord` every window, entry or no entry. They are cheap,
+they carry no causal claims, and they cannot be retrofitted, because by then the
+windows are gone.
+
+---
+
+## The two terms that are not on the form
+
+Everything else here is well-formed and, absent a term that buys it, nobody
+installs it: **a vendor ships something capable of withdrawing its own
+compliance claim only when not shipping it costs more.**
+
+`nsjepa-contrib terms` prints both of these at the bottom of the list.
+
+**`verifiable_governance_telemetry`** — the system emits signed, continuous
+evidence of whether the other terms were met in production. It is the only term
+on any of these lists discharged by mechanism rather than by assertion, and the
+only one that is checkable *after* award, which is when every failure in the
+CAT-01..09 seed actually happened. It is also the forcing function for this
+package.
+
+**`independent_governance_audit`** — a third-party assessor, engaged and paid by
+the issuing body rather than the vendor, verifying the terms no runtime probe
+can reach. `nsjepa-contrib terms` marks three of the six selectable §3 terms
+`[NOT OBSERVABLE from inside a product]`: `exit_ready_no_lock_in`,
+`data_residency_no_training`, `minority_view_preservation`. They are facts about
+corporate conduct, hosting, and what was left *out* of a synthesis. No amount of
+vendor instrumentation reaches them.
+
+Roughly half the governance surface the form sells cannot be verified by the
+party being asked to verify it. That half closes with money, not with code. Cost
+is the honest objection and the answer is that an unverifiable requirement is
+not cheaper than an audited one — it is a requirement whose failure nobody will
+detect.
+
+---
+
+## Corrections and retirement
+
+See [`docs/adr/0003-corrections-and-retirement.md`](../docs/adr/0003-corrections-and-retirement.md).
+
+Entries name real parties. A provisional finding about a real party is a claim
+with no expiry unless somebody writes one down, so `review_by` is mandatory on
+every contributed entry, `retired_reason` is mandatory on retirement, and
+supersession is explicit and paired. Retired entries stay in the tree: a
+withdrawn finding is itself evidence about how the corpus behaves, and a corpus
+that quietly removes its errors is asking to be trusted rather than checked.
+
+A `review_by` in the past is a queue, not a failure. Entries do not expire on a
+timer, because that would let anyone run out the clock by not looking.
 
 ---
 
@@ -255,10 +361,26 @@ Bundles carry a SHA-256 per file and refuse to unpack anything outside `contrib/
 Stated plainly, because a governance tool that hides its own limits is the thing it is supposed to prevent.
 
 - **`shrink_to_sample` is not a real interval.** It is `ceiling · n/(n+30)`. Adequate to stop a single incident emitting a confident edge, inadequate for anything downstream of that. Needs a Wilson lower bound before institution-level aggregation ships.
-- **The `runtime` tier trusts the integrator.** Nothing prevents a vendor from calling `record_action(review_preceded_effect=True)` unconditionally. The tier is capped at 0.85 and marked non-independent for that reason, but the honest answer is that runtime telemetry establishes what your instrumentation reported, not what happened. An `audit:` tier finding is what converts one into the other.
+- **The `runtime` tier still trusts the integrator.** Taking events instead of conclusions removed the case where the ordering is reported wrongly by accident — which is how that error actually happens — but nothing stops a vendor calling `record_human_decision` before `record_effect` unconditionally. The tier stays capped at 0.85 and non-independent for that reason. Runtime telemetry establishes what your instrumentation reported, not what happened; `independent_governance_audit` is what converts one into the other.
 - **The 0.98 threshold is a judgement call**, not a derived figure. It is not 1.0 because no production system reaches 1.0 and a threshold nobody can meet gets the SDK switched off. Overrides are recorded in the entry.
-- **Three of the six §3 terms are unobservable from inside a product.** See above. Roughly half the governance surface the form sells cannot be verified by the party being asked to verify it, which is itself worth reporting upward.
+- **The `analytic` tier is a judgement about which claims are definitional.** It exists because `inferred` at 0.70 was capping claims that follow from an entry's own `domain_sense` and that no fieldwork would move. The guard is that a reviewer must be able to check an analytic edge without leaving the file, and it is a guard enforced by review rather than by code. Expect it to be the most-abused tier.
+- **Three of the six §3 terms are unobservable from inside a product.** Roughly half the governance surface the form sells cannot be verified by the party being asked to verify it. That is a finding about the instrument, not about this code.
+- **`assess` reports two different silences as `UNMEASURED`** and distinguishes them only in the detail text: a term nothing can reach, and a term this SDK has not implemented a probe for. The second is a backlog item in here; the first costs money to close.
 - **HMAC establishes integrity, not authorship.** Key distribution is your deployment's problem and this module does not pretend otherwise.
+
+### Convergence is measured, not assumed
+
+`python tools/convergence_report.py --check` runs in CI. The corpus rests on
+unrelated entries converging on shared causal nodes, and **nothing else fails
+when that dies** — every entry still validates, the graph just quietly stops
+being one graph. The first pass at the nine seed entries produced 71 nodes with
+zero overlap because the same capacity had five different names.
+
+The check fails only on regression: a node that was shared and no longer is.
+Unregistered recurring nodes are reported and do not fail, because a contributor
+may genuinely have found something new.
+
+---
 
 ## Licence
 

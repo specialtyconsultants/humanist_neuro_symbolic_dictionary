@@ -20,6 +20,26 @@ contrib/<vendor_id>/<deployment_id>/<lemma_slug>.entry.yaml
    merge. It means moving the evidence into the hand-maintained entry under
    `domains/<domain>/entries/`, with the tier and confidence a human has
    accepted — not moving the file.
+4. **Every contribution declares `ethics.adverse_to`.** Any of `vendor`,
+   `operator`, `resident`. This is the first thing to check on review, because
+   the independence requirement keys on it: a finding adverse to the submitter is
+   believed on its own, and a finding adverse only to somebody else needs
+   independent support like any other favourable claim. A vendor reporting *"the
+   county configured us to deprive first"* is a negative finding that is
+   favourable to the vendor.
+5. **Every polarity names the edges that earn it.** `supported_by` holds edge
+   ids from the same entry. A polarity with nothing behind it does not merge;
+   before this field, the ethics footnote was the only part of an entry nothing
+   could check.
+6. **Every provisional contribution carries `review_by`.** It names a vendor, a
+   deployment, and usually an agency. See
+   [`docs/adr/0003-corrections-and-retirement.md`](../docs/adr/0003-corrections-and-retirement.md).
+7. **`windows/*.compliance.yaml` are denominators, not entries.** They record
+   that a window ran and what it found, carry no causal claims, and must never
+   be cited as findings. They exist because a compliant deployment produces no
+   entry, and a corpus of only failures has no denominator — the first person to
+   compute a rate over the entries alone gets a number that means nothing and
+   looks authoritative. Do not delete them to tidy the tree.
 
 ## Reviewing a contribution
 

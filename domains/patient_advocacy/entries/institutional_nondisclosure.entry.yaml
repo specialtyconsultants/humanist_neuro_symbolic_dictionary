@@ -13,22 +13,25 @@ grounding:
 causal:
   edges:
     # --- individual scale ---
-    - {cause: institutional_nondisclosure, relation: prevents,
-       effect: informed_recourse, confidence: 0.80, provenance: cbs:nashville_2026-08-14#response}
-    - {cause: institutional_nondisclosure, relation: increases,
-       effect: time_to_regulatory_finding, confidence: 0.60, provenance: cbs:nashville_2026-08-14#response}
+    - {id: e1, cause: institutional_nondisclosure, relation: prevents,
+       effect: informed_recourse, confidence: 0.80, provenance: press:cbs_nashville_2026-08-14#response}
+    - {id: e2, cause: institutional_nondisclosure, relation: increases,
+       effect: time_to_regulatory_finding, confidence: 0.60, provenance: press:cbs_nashville_2026-08-14#response}
     # --- institutional scale (the collective thread) ---
-    - {cause: suppressed_harm_event_capture, relation: prevents,
-       effect: system_level_safety_improvement, confidence: 0.85, provenance: "oig:OEI-06-18-00401#finding"}
-    - {cause: suppressed_harm_event_capture, relation: prevents,
-       effect: cross_patient_pattern_visibility, confidence: 0.80, provenance: "oig:OEI-06-18-00401#premise"}
-    - {cause: institutional_nondisclosure, relation: enables,
+    - {id: e3, cause: suppressed_harm_event_capture, relation: prevents,
+       effect: system_level_safety_improvement, confidence: 0.85, provenance: "regulator:oig_OEI-06-18-00401#finding"}
+    - {id: e4, cause: suppressed_harm_event_capture, relation: prevents,
+       effect: cross_patient_pattern_visibility, confidence: 0.80, provenance: "regulator:oig_OEI-06-18-00401#premise"}
+    - {id: e5, cause: institutional_nondisclosure, relation: enables,
        effect: suppressed_harm_event_capture, confidence: 0.50, provenance: "inferred:bridge#needs_grounding"}
   interventions:
     - "do(mandatory_causal_disclosure_to_harmed_party) removes institutional_nondisclosure"
     - "do(external_harm_event_surveillance) removes suppressed_harm_event_capture"
 ethics:
-  principle_polarity: {autonomy: "-", justice: "-", non_maleficence: "+/-"}
+  principle_polarity:
+    autonomy:        {polarity: "-",   supported_by: [e1]}
+    justice:         {polarity: "-",   supported_by: [e3, e4]}
+    non_maleficence: {polarity: "+/-", supported_by: [e2]}
   warrants: []
   # ^ NO MATCHING WARRANT IN norms/rules.yaml. The norms engine must not
   #   manufacture permissibility. Escalate for a human normative decision.
@@ -44,10 +47,10 @@ svo:
   subject: institutional_nondisclosure
   verb: prevents
   obj: informed_recourse
-  derived_from: cbs:nashville_2026-08-14#response
+  derived_from: press:cbs_nashville_2026-08-14#response
 glyph_block:
   logogram: document
   superfix: link_is_broken
   subfix: autonomy
 metaphor_type: "structural (DISCLOSURE IS LIGHT — withheld account as opacity)"
-provenance: cbs:nashville_2026-08-14
+provenance: press:cbs_nashville_2026-08-14

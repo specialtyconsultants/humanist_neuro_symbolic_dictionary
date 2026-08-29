@@ -32,28 +32,33 @@ causal:
   # evidence of INAUTHENTICITY, and organisation is the participation mode of
   # exactly those communities least able to send individually-drafted prose.
   edges:
-    - {cause: textual_similarity, relation: enables,
+    - {id: e1, cause: textual_similarity, relation: enables,
        effect: deduplicated_public_comment, confidence: 0.90,
-       provenance: "inferred:clustering_method#structural"}
-    - {cause: fabricated_comment_volume, relation: causes,
+       provenance: "analytic:clustering_method#definitional"}
+    - {id: e2, cause: fabricated_comment_volume, relation: causes,
        effect: textual_similarity, confidence: 0.85,
-       provenance: "nyag:fcc_fake_comments_2021-05#findings"}
-    - {cause: organised_community_campaign, relation: causes,
+       provenance: "regulator:nyag_fcc_fake_comments_2021-05#findings"}
+    - {id: e3, cause: organised_community_campaign, relation: causes,
        effect: textual_similarity, confidence: 0.80,
-       provenance: "nyag:fcc_fake_comments_2021-05#volume_analysis"}
-    - {cause: deduplicated_public_comment, relation: prevents,
-       effect: proportional_weight_of_organised_constituency, confidence: 0.75,
+       provenance: "regulator:nyag_fcc_fake_comments_2021-05#volume_analysis"}
+    - {id: e4, cause: deduplicated_public_comment, relation: prevents,
+       effect: proportional_weight_of_organised_constituency, confidence: 0.70,
        provenance: "inferred:collapse_effect#needs_grounding"}
-    - {cause: volume_weighted_synthesis, relation: prevents,
-       effect: minority_viewpoint_visibility, confidence: 0.80,
+    - {id: e5, cause: volume_weighted_synthesis, relation: prevents,
+       effect: minority_viewpoint_visibility, confidence: 0.70,
        provenance: "inferred:aggregation#structural"}
   interventions:
     - "do(verify_assent_at_submission) removes fabricated_comment_volume"
     - "do(report_distinct_positions_separately_from_volume) removes volume_weighted_synthesis"
     - "do(carry_singleton_clusters_uncollapsed_into_synthesis) enables minority_viewpoint_visibility"
 ethics:
-  principle_polarity: {fair_treatment: "-", non_discrimination: "-",
-                       transparency: "+/-"}
+  principle_polarity:
+    fair_treatment:     {polarity: "-", supported_by: [e1, e3, e4]}
+    non_discrimination: {polarity: "-", supported_by: [e4, e5]}
+  # DROPPED: transparency "+/-". Its positive half — that the synthesis is
+  # auditable and reproducible — had no edge anywhere in this entry. The claim
+  # may well be true. It was not encoded, and an unencoded normative claim is
+  # exactly what supported_by exists to stop travelling as though it were.
   warrants: []
   # ^ NO SELECTABLE TERM IN INTERSTATE §3 REACHES THIS HARM. Human-in-the-loop
   #   puts a person above the clustering, not inside it — and no person reads
@@ -91,10 +96,10 @@ svo:
   subject: deduplicated_public_comment
   verb: prevents
   obj: proportional_weight_of_organised_constituency
-  derived_from: "nyag:fcc_fake_comments_2021-05#findings"
+  derived_from: "regulator:nyag_fcc_fake_comments_2021-05#findings"
 glyph_block:
   logogram: crowd
   superfix: more_is_up
   subfix: due_process
 metaphor_type: "orientational (SUPPORT IS VOLUME) over ontological (A DOCKET IS A BALLOT — it is not)"
-provenance: "nyag:fcc_fake_comments_2021-05"
+provenance: "regulator:nyag_fcc_fake_comments_2021-05"

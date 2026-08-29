@@ -13,10 +13,17 @@ the entry escalates. Nobody at the vendor had to decide to disclose that.
 from __future__ import annotations
 
 import argparse
+import datetime
 import random
 
-from nsjepa_contrib import ContributorConfig, DeploymentObserver, EntryBuilder
-from nsjepa_contrib.emit import write
+#: The corrections protocol (docs/adr/0003) requires a review date on any
+#: provisional entry that names a party. This one names a vendor, a product, and
+#: a county.
+REVIEW_BY = (datetime.date.today() + datetime.timedelta(days=180)).isoformat()
+
+from nsjepa_contrib import (ContributorConfig, DeploymentObserver, EntryBuilder,
+                            __version__, assess, compliance_record)
+from nsjepa_contrib.emit import write, write_compliance
 from nsjepa_contrib.validate import validate_file
 
 
@@ -31,17 +38,30 @@ def simulate(deployment_id: str, seed: int = 7) -> "ObservationLog":  # noqa: F8
     rng = random.Random(seed)
     obs = DeploymentObserver(deployment_id)
     for i in range(1200):
+        ref = f"case-{i}"
         adverse = rng.random() < 0.18
         if not adverse:
-            # the enrolling branch: fully automated, and nobody minds
-            obs.record_action(human_reviewed=False)
+            # The enrolling branch: fully automated, and nobody minds. Note that
+            # it still records an effect. An automated enrolment IS a
+            # consequential action, and leaving it out of the denominator is how
+            # a deployment reports a flattering human-in-the-loop rate while
+            # automating everything that matters.
+            obs.record_effect(ref)
             continue
-        # the terminating branch: same pipeline, opposite normative sign
+
+        # The terminating branch: same pipeline, opposite normative sign.
         reviewed_first = rng.random() < 0.22
-        obs.record_action(human_reviewed=True, review_preceded_effect=reviewed_first)
-        ref = f"case-{i}"
-        obs.record_deprivation(ref, reviewed_first=reviewed_first)
-        if not reviewed_first:
+        if reviewed_first:
+            obs.record_human_decision(ref)
+            obs.record_effect(ref)
+            obs.record_deprivation(ref)
+            obs.record_review_completed(ref)
+        else:
+            # the ordering the term is supposed to prevent, and the one the
+            # integrator is never asked to characterise
+            obs.record_effect(ref)
+            obs.record_deprivation(ref)
+            obs.record_human_decision(ref)
             obs.record_review_completed(ref)
     return obs.close_window()
 
@@ -57,7 +77,20 @@ def main() -> int:
         deployment_id="cuyahoga-jfs-prod",
         category="CAT-02",
         docket_reference="IN-2026-08-16312",
-        governance_terms=["human_in_the_loop", "audit_log_and_explainability"],
+        governance_terms=[
+            "human_in_the_loop",
+            "audit_log_and_explainability",
+            # The proposed term this category forces. A deployment may declare
+            # it voluntarily, and the SDK then holds it to it exactly as if the
+            # solicitation had required it — which is the point: a term is
+            # discharged by evidence, and where the evidence comes from does not
+            # change what it shows.
+            "no_deprivation_pending_review",
+            # The forcing function. Declared here so the worked example shows
+            # the whole loop: the term that buys the telemetry is itself
+            # assessed by the telemetry it buys.
+            "verifiable_governance_telemetry",
+        ],
         dictionary_root=a.dictionary_root,
     )
     log = simulate(cfg.deployment_id)
@@ -77,8 +110,28 @@ def main() -> int:
                     {"form": "gate-bar", "peirce": "symbol", "role": "logogram"}],
         )
         .from_observations(log)
+        # The findings are adverse to this vendor's own deployment. That is what
+        # makes them credible without corroboration, and declaring it is a
+        # deliberate act — a contribution adverse only to the county would need
+        # independent support like any other favourable claim.
+        .adverse_to("vendor", "resident")
         .claim_warrant("human_in_the_loop")
-        .polarity(due_process="-", resident_non_maleficence="-")
+        # No `because=` anywhere here. The polarities and the edges that earn
+        # them both come out of the telemetry, already linked, so there is no
+        # step at which a person writes down a normative conclusion the graph
+        # does not reach.
+        .polarity(due_process="-")
+        # `due_process` needs no `because=`: it is the principle
+        # `human_in_the_loop` discharges, so failing that term auto-links the
+        # edges the failure derived. `resident_non_maleficence` maps to no
+        # governance term, so nothing links it automatically and the gate refuses
+        # it until the edges are named. That refusal is the feature — it is the
+        # exact shape of the error this whole change was for, caught in the
+        # example that ships.
+        .claim("resident_non_maleficence", "-", because=["e1", "e2"])
+        # e1/e2 are the deprivation edges: the benefit stopped before anyone
+        # looked, and the recourse that forecloses. e3 is the ordering failure
+        # on the action itself.
         .balancing_note(
             "the efficiency is won on the enrolling cases and the cost is paid on "
             "the terminating ones, and those are different people. An aggregate "
@@ -95,8 +148,16 @@ def main() -> int:
         .build()
     )
 
+    entry["review_by"] = REVIEW_BY
     path = write(entry, root=a.dictionary_root)
-    print(f"wrote {path}\n")
+    print(f"wrote {path}")
+
+    # ALWAYS emit the window record, entry or no entry. It is the denominator,
+    # and it cannot be retrofitted because by then the windows are gone.
+    findings = assess(cfg, log)
+    rec = compliance_record(cfg, log, findings, produced_entry=True,
+                            sdk_version=__version__)
+    print(f"wrote {write_compliance(rec, root=a.dictionary_root)}\n")
     print("\n".join(report.lines()) or "(no gate actions)")
     print()
     for f in validate_file(path, a.dictionary_root):

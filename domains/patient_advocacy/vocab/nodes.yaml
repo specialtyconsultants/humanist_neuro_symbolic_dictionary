@@ -1,0 +1,32 @@
+# Canonical causal-node registry for patient_advocacy.
+#
+# Deliberately small. A registry that lists every node any entry has ever used
+# is a maintenance burden that buys nothing: identity governance only matters
+# where two entries could mean the same thing by different names, and a node
+# used once is local vocabulary. `nsjepa_contrib.validate` reports an
+# unregistered node only when it RECURS across entries, which is the point at
+# which a silent fork starts costing something.
+#
+# Register a node when it appears in a second entry, or when you can see that it
+# will. Registering is cheap; un-registering is not.
+
+version: 1
+domain: patient_advocacy
+
+nodes:
+  informed_recourse:
+    gloss: >
+      the affected person's ability to contest an outcome before a body that
+      can reverse it, knowing the grounds
+    aliases: [ability_to_appeal, right_to_contest, recourse]
+    note: >
+      SHARED WITH gov_procurement, where it was arrived at independently from
+      municipal sources with no shared vocabulary. Seven entries across two
+      domains foreclose this one capacity. Do not fork it, and do not narrow the
+      gloss to something medical — the whole value of the node is that it is not.
+
+  irreversible_neurologic_injury:
+    gloss: neurological harm that no subsequent treatment undoes
+    aliases: [permanent_neurologic_injury]
+
+time_index_separator: "@"

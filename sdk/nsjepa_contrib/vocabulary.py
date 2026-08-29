@@ -79,3 +79,7 @@ class Vocabulary:
     @property
     def size(self) -> int:
         return len(set(self._canonical.values()))
+
+    @property
+    def registered(self) -> set[str]:
+        return set(self._canonical.values())

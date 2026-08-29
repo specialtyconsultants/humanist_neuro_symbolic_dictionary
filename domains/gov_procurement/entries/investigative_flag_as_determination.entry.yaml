@@ -30,32 +30,37 @@ causal:
   # and a refund three months later is not the same good as uninterrupted rent.
   # Human-in-the-loop is fully satisfied. Due process is not touched.
   edges:
-    - {cause: anomaly_score_above_threshold, relation: causes,
+    - {id: e1, cause: anomaly_score_above_threshold, relation: causes,
        effect: investigative_flag_as_determination, confidence: 0.85,
-       provenance: "rbdha:2020_865#risk_indication"}
-    - {cause: suspension_pending_investigation, relation: causes,
-       effect: deprivation_before_adjudication, confidence: 0.90,
-       provenance: "nl:toeslagenaffaire#parliamentary_findings"}
-    - {cause: deprivation_before_adjudication, relation: prevents,
-       effect: meaningful_review, confidence: 0.75,
+       provenance: "court:rbdha_2020_865#risk_indication"}
+    - {id: e2, cause: suspension_pending_investigation, relation: causes,
+       effect: deprivation_before_adjudication, confidence: 0.85,
+       provenance: "legislature:nl_toeslagenaffaire#parliamentary_findings"}
+    - {id: e3, cause: deprivation_before_adjudication, relation: prevents,
+       effect: meaningful_review, confidence: 0.70,
        provenance: "inferred:ordering#structural"}
-    - {cause: burden_shift_to_the_affected_person, relation: increases,
+    - {id: e4, cause: burden_shift_to_the_affected_person, relation: increases,
        effect: exit_without_adjudication, confidence: 0.80,
-       provenance: "nl:toeslagenaffaire#parliamentary_findings"}
-    - {cause: proxy_correlated_with_protected_class, relation: causes,
+       provenance: "legislature:nl_toeslagenaffaire#parliamentary_findings"}
+    - {id: e5, cause: proxy_correlated_with_protected_class, relation: causes,
        effect: disparate_flag_rate, confidence: 0.85,
        provenance: "acad:reglab_irs_audit_2023#eitc_finding"}
-    - {cause: opaque_risk_model, relation: prevents,
+    - {id: e6, cause: opaque_risk_model, relation: prevents,
        effect: informed_recourse, confidence: 0.85,
-       provenance: "rbdha:2020_865#transparency_holding"}
+       provenance: "court:rbdha_2020_865#transparency_holding"}
   interventions:
     - "do(continue_benefit_pending_investigation) removes deprivation_before_adjudication"
     - "do(disclose_flag_grounds_to_flagged_person) enables informed_recourse"
     - "do(agency_bears_burden_of_proof) removes burden_shift_to_the_affected_person"
     - "do(audit_selection_rate_parity_review) lowers disparate_flag_rate"
 ethics:
-  principle_polarity: {due_process: "-", non_discrimination: "-",
-                       transparency: "-", best_value_integrity: "+"}
+  principle_polarity:
+    due_process:        {polarity: "-", supported_by: [e2, e3, e6]}
+    non_discrimination: {polarity: "-", supported_by: [e5]}
+    transparency:       {polarity: "-", supported_by: [e6]}
+  # DROPPED: best_value_integrity "+". Recovering improper payments is a real
+  # public interest, and no edge in this entry establishes that this mechanism
+  # recovers any. The concession survives in prose; it is not scored.
   warrants:
     - {claim: human_in_the_loop, principle: due_process}
     - {claim: no_deprivation_pending_review, principle: due_process}   # source: proposed
@@ -81,10 +86,10 @@ svo:
   subject: suspension_pending_investigation
   verb: causes
   obj: deprivation_before_adjudication
-  derived_from: "nl:toeslagenaffaire#parliamentary_findings"
+  derived_from: "legislature:nl_toeslagenaffaire#parliamentary_findings"
 glyph_block:
   logogram: pennant
   superfix: more_is_up
   subfix: due_process
 metaphor_type: "ontological (A FLAG IS A VERDICT — the category denies this; the procedure asserts it)"
-provenance: "rbdha:2020_865"
+provenance: "court:rbdha_2020_865"
