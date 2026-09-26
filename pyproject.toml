@@ -22,3 +22,10 @@ nsjepa = "services.cli.main:main"
 
 [tool.ruff]
 line-length = 100
+
+[tool.pytest.ini_options]
+# `sdk/` is a SEPARATE distribution (nsjepa-contrib) with its own pyproject and
+# its own CI job. Without this, a bare `pytest -q` at the root collects
+# sdk/tests, fails to import nsjepa_contrib, and dies during collection — which
+# the root `test` job would hit the moment the install below starts working.
+testpaths = ["tests"]

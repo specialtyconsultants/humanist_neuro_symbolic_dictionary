@@ -40,9 +40,11 @@ jobs:
       # marked weak edge is a contribution, and a build that failed over one
       # would teach contributors to launder it into something that passes.
       - name: Validate entries
+        # --dictionary-root is a top-level option and must precede the
+        # subcommand. It read more naturally after it, and argparse disagreed.
         run: |
-          nsjepa-contrib validate --dictionary-root . --pattern 'domains/*/entries/*.entry.yaml'
-          nsjepa-contrib validate --dictionary-root . --pattern 'contrib/**/*.entry.yaml'
+          nsjepa-contrib --dictionary-root . validate --pattern 'domains/*/entries/*.entry.yaml'
+          nsjepa-contrib --dictionary-root . validate --pattern 'contrib/**/*.entry.yaml'
 
       # The corpus rests on unrelated entries converging on shared causal nodes,
       # and NOTHING ELSE FAILS WHEN THAT DIES — every entry still validates, the
