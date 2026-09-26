@@ -18,6 +18,7 @@ import time as _time
 from dataclasses import dataclass, field
 from enum import Enum
 
+from . import audit as _audit
 from .config import ALL_TERMS, ContributorConfig
 from .observer import ObservationLog
 from .provenance import TIERS, shrink_to_sample
@@ -111,9 +112,26 @@ def _rate(num: int, den: int) -> float | None:
 
 def assess(config: ContributorConfig, log: ObservationLog,
            threshold: float = DEFAULT_THRESHOLD,
-           now: float | None = None) -> list[TermFinding]:
-    """Score every term the deployment claimed against what was observed."""
+           now: float | None = None,
+           attestations: dict | None = None) -> list[TermFinding]:
+    """Score every term the deployment claimed against what was observed.
+
+    `attestations` are third-party assessments of this deployment, loaded from
+    the dictionary repository. They are the ONLY way a term marked
+    `observable=False` can reach any status other than UNMEASURED — which,
+    before the auditor side existed, meant `independent_governance_audit` could
+    never be met, so `coi_avoidance` could not be discharged by any code path
+    in the package. A principle that is declared, wired into a rule, and
+    structurally unreachable is worse than one left unused: it reads as
+    satisfied by design.
+
+    Defaults to loading them from `config.dictionary_root`, so the common case
+    needs no argument and a caller cannot accidentally assess against an empty
+    set and conclude the audits are missing.
+    """
     findings: list[TermFinding] = []
+    if attestations is None:
+        attestations = _audit.load_all(config.dictionary_root, config.deployment_id)
 
     def add(term, status, observed=None, n=0, detail=""):
         findings.append(
@@ -207,16 +225,63 @@ def assess(config: ContributorConfig, log: ObservationLog,
             "paper and reports nothing, which is the failure this term exists to "
             "prevent — so it is NOT_MET rather than UNMEASURED")
 
-    # Whatever is left has no probe above. Two very different reasons for that,
-    # and collapsing them would be the kind of quiet imprecision this module
-    # exists to avoid: a term nothing CAN reach is a permanent gap that costs
-    # money to close, and a term this SDK merely does not implement yet is a
-    # backlog item.
+    # The audit term is the other meta-term, and its evidence is the existence of
+    # the evidence — exactly like verifiable_governance_telemetry, for the same
+    # reason. It asks whether an independent assessment happened, so what
+    # discharges it is an attestation on file, not a finding inside one.
+    #
+    # Note the asymmetry between the two. The telemetry term a vendor satisfies
+    # by wiring up its own product. This one it cannot satisfy at all: it is
+    # discharged by a document the vendor did not write, could not write, and
+    # cannot suppress once the assessor has filed it.
+    qualifying = [a for a in (attestations or {}).values()
+                  if a.independence.engaged_by == "issuing_body"
+                  and not a.independence.fee_contingent_on_outcome]
+    if not config.selected("independent_governance_audit"):
+        add("independent_governance_audit", Status.NOT_CLAIMED)
+    elif qualifying:
+        a0 = qualifying[0]
+        covered = sorted({t for a in qualifying for t in a.terms})
+        add("independent_governance_audit", Status.MET, None, len(qualifying),
+            f"{len(qualifying)} independent attestation(s) on file; "
+            f"{a0.auditor_org} under {a0.independence.engagement_reference}, "
+            f"covering {covered}")
+    elif attestations:
+        add("independent_governance_audit", Status.NOT_MET, None, len(attestations),
+            "attestations exist for this deployment and none qualify: an assessment "
+            "engaged by the vendor, or paid contingent on its outcome, is not "
+            "independent of the party or of the verdict. It may still be correct; "
+            "it does not discharge coi_avoidance")
+    else:
+        add("independent_governance_audit", Status.NOT_MET, None, 0,
+            "claimed, and no attestation is on file for this deployment. The "
+            "assessor files it themselves under contrib/audits/; a vendor cannot "
+            "produce this evidence and is not being asked to. NOT_MET rather than "
+            "UNMEASURED, because here the absence is itself the finding")
+
+    # Whatever is left has no probe above. Three different reasons for that, and
+    # collapsing them would be the kind of quiet imprecision this module exists
+    # to avoid: a term an assessor HAS reached is decided; a term nothing inside
+    # a product can reach is a permanent gap that costs money to close; a term
+    # this SDK merely has not implemented is a backlog item.
+    by_term_att = {}
+    for att in (attestations or {}).values():
+        for f in att.findings:
+            by_term_att.setdefault(f.term, (att, f))
+
     for term, spec in ALL_TERMS.items():
         if any(f.term == term for f in findings):
             continue
         if not config.selected(term):
             add(term, Status.NOT_CLAIMED)
+        elif term in by_term_att:
+            att, af = by_term_att[term]
+            status = {"met": Status.MET, "not_met": Status.NOT_MET,
+                      "inconclusive": Status.UNMEASURED}[af.verdict]
+            add(term, status, None, 0,
+                f"third-party finding by {att.auditor_org} ({att.id}), "
+                f"verdict {af.verdict}; method: {af.method}"
+                + (f". {af.detail}" if af.detail else ""))
         elif not spec.observable:
             add(term, Status.UNMEASURED, detail=UNOBSERVABLE_DETAIL)
         else:

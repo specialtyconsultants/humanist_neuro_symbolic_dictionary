@@ -66,8 +66,13 @@ TIERS: dict[str, Tier] = {
     # --- independent, unadjudicated -----------------------------------------
     "acad": Tier("acad", 0.85, True, False,
                  "peer-reviewed or working-paper empirical work"),
-    "audit": Tier("audit", 0.85, True, True,
-                  "a third-party audit of this deployment, commissioned but not performed by the vendor"),
+    # An audit is a human judgement, not a mechanical measurement — `measured`
+    # was True here and that was simply wrong. It reaches the corpus only via an
+    # attestation filed separately by the assessor; see nsjepa_contrib.audit for
+    # why the tier cannot be claimed by writing the word.
+    "audit": Tier("audit", 0.85, True, False,
+                  "a third-party assessment of this deployment, engaged and paid by "
+                  "the issuing body, filed by the assessor under contrib/audits/"),
     "press": Tier("press", 0.80, True, False,
                   "reporting by a named outlet with a named author"),
     # --- not independent -----------------------------------------------------

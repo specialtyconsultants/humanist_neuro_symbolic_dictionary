@@ -20,6 +20,25 @@ dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10"]
 [project.scripts]
 nsjepa = "services.cli.main:main"
 
+[tool.setuptools.packages.find]
+# Setuptools flat-layout autodiscovery refuses to guess once there is more than
+# one candidate top-level directory, and this repo has seven. Naming them is the
+# whole fix; the reason it needs BOTH lists is that three of the seven are not
+# Python at all and one is a different distribution:
+#
+#   sdk/      the `nsjepa-contrib` distribution, with its own pyproject. Bundling
+#             it into the `nsjepa` wheel would ship two packages under one name
+#             and install a vendor-facing CLI on every engine install.
+#   contrib/  vendor-submitted YAML. Data, not code, and untrusted until ratified.
+#   eval/     baselines and fixtures.
+#   training/ checkpoint and data placeholders.
+#
+# `exclude` is redundant against `include` today and is kept deliberately: a new
+# top-level directory added later is silently picked up by neither, and an
+# explicit refusal is the thing that will still be readable when that happens.
+include = ["core*", "domains*", "services*"]
+exclude = ["sdk*", "contrib*", "eval*", "training*", "tools*", "tests*", "docs*"]
+
 [tool.ruff]
 line-length = 100
 

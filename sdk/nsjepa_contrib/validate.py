@@ -19,6 +19,7 @@ from enum import Enum
 
 import yaml
 
+from . import audit as _audit
 from .builder import DomainNorms
 from .provenance import ProvenanceError, check_confidence, parse
 from .vocabulary import Vocabulary
@@ -76,6 +77,7 @@ def validate_entry(entry: dict, root: str = ".", where: str = "<entry>",
         err(f"cannot load domain norms: {exc}")
         return out
     vocab = Vocabulary.load(domain, root)
+    _attestations = _audit.load_all(root)
 
     if entry.get("contributed_by") and entry.get("status") != "provisional":
         err("a contributed entry must be `provisional`; ratification is the "
@@ -93,6 +95,23 @@ def validate_entry(entry: dict, root: str = ".", where: str = "<entry>",
             err(f"{label}: {exc}")
             continue
         provs.add(e["provenance"])
+        # The receiving side repeats the builder's audit resolution rather than
+        # trusting that it ran. A contribution can arrive by any route — an
+        # air-gapped bundle, a hand-edited file, a fork of an older SDK — and
+        # the tier that can carry a positive polarity is the one worth checking
+        # twice.
+        if tier.name == "audit":
+            try:
+                att, term = _audit.resolve(
+                    e["provenance"], _attestations,
+                    citing_vendor_id=(entry.get("contributed_by") or {}).get("vendor_id"))
+            except _audit.AttestationError as exc:
+                err(f"{label}: {exc}")
+            else:
+                if att.deployment_id != (entry.get("contributed_by") or {}).get(
+                        "deployment_id", att.deployment_id):
+                    err(f"{label}: {att.id} attests deployment "
+                        f"{att.deployment_id!r}, not this entry's")
         if section == "needs_grounding":
             warn(f"{label}: open grounding target at confidence {e['confidence']}")
         if e["confidence"] >= 0.85 and not tier.independent and not tier.measured:

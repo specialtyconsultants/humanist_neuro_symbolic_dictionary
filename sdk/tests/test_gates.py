@@ -304,11 +304,20 @@ def test_telemetry_term_met_when_probes_fired():
 
 
 def test_audit_term_is_never_self_measurable():
+    """No amount of vendor activity moves this term.
+
+    It used to be permanently UNMEASURED, which meant `claim_warrant` always
+    withdrew it and `coi_avoidance` could not be discharged by any code path at
+    all. It is now NOT_MET when nothing is on file — the absence is a finding,
+    not a silence — and only an attestation filed by somebody else makes it MET.
+    See tests/test_audit.py for that half; here the point is that a busy,
+    fully-compliant window does not help.
+    """
     c = cfg(governance_terms=["independent_governance_audit"])
     findings = {f.term: f for f in assess(c, observer_with(actions=25, reviewed_before=25))}
     f = findings["independent_governance_audit"]
-    assert f.status is Status.UNMEASURED
-    assert "third-party assessor" in f.detail
+    assert f.status is Status.NOT_MET
+    assert "a vendor cannot produce this evidence" in f.detail.lower()
 
 
 # --- retirement -------------------------------------------------------------

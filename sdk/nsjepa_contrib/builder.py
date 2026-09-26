@@ -28,6 +28,7 @@ import yaml
 from .config import ALL_TERMS, ContributorConfig
 from .derive import Status, TermFinding, assess, derive_edges
 from .observer import ObservationLog
+from . import audit as _audit
 from .provenance import ProvenanceError, check_confidence, parse
 from .vocabulary import Vocabulary
 
@@ -84,6 +85,7 @@ class BuildReport:
     renamed_nodes: list[tuple[str, str]] = field(default_factory=list)
     escalated: bool = False
     needs_grounding: list[str] = field(default_factory=list)
+    cited_attestations: list[tuple[str, str, str]] = field(default_factory=list)
     touches_proposed_principles: list[str] = field(default_factory=list)
 
     def lines(self) -> list[str]:
@@ -94,6 +96,8 @@ class BuildReport:
             out.append(f"NODE RENAMED       {sub} -> {canon}")
         for node, sugg in self.unregistered_nodes:
             out.append(f"NODE UNREGISTERED  {node}" + (f"  (did you mean {sugg}?)" if sugg else ""))
+        for aid, term, org in self.cited_attestations:
+            out.append(f"AUDIT RESOLVED     {term} <- {aid} ({org})")
         for p in self.needs_grounding:
             out.append(f"NEEDS GROUNDING    {p}")
         for p in self.touches_proposed_principles:
@@ -120,6 +124,8 @@ class EntryBuilder:
         self._polarity: dict[str, dict] = {}
         self._derived_support: dict[str, list[str]] = {}
         self._adverse_to: list[str] | None = None
+        self._attestations = _audit.load_all(config.dictionary_root)
+        self._cited_audits: dict[str, str] = {}      # attestation id -> term
         self._claimed_warrants: list[str] = []
         self._balancing = ""
         self._svo: dict | None = None
@@ -198,6 +204,29 @@ class EntryBuilder:
             self.claim(principle, sign)
         return self
 
+    def audit_edge(self, cause: str, relation: str, effect: str, *,
+                   attestation_id: str, term: str, confidence: float):
+        """Add an edge resting on a third-party attestation filed separately.
+
+        This is the only supported way to produce an `audit:` tier edge. The
+        attestation is resolved against the repository at build time; it is not
+        supplied by the caller, cannot be constructed by the caller, and is
+        refused when its author is the vendor citing it. Before this existed the
+        gate checked the string prefix, and a vendor could mint independent
+        support for a favourable claim by writing the word `audit:`.
+        """
+        att = self._attestations.get(attestation_id)
+        if att is None:
+            raise GateViolation(
+                f"no attestation {attestation_id!r} under "
+                f"{_audit.AUDIT_DIR}/ in {self.config.dictionary_root!r}. The "
+                f"assessor files it themselves, as their own pull request; you cite "
+                f"it. Known: {sorted(self._attestations) or '(none)'}")
+        prov = att.provenance_for(term)
+        self._cited_audits[attestation_id] = term
+        return self.edge(cause, relation, effect, confidence=confidence,
+                         provenance=prov)
+
     def adverse_to(self, *parties: str):
         """Who this entry's findings cut against: vendor, operator, resident.
 
@@ -263,6 +292,17 @@ class EntryBuilder:
             tiers.append(tier)
             if section == "needs_grounding":
                 r.needs_grounding.append(e["provenance"])
+            # An `audit:` edge is independent support, so it is the tier with a
+            # reason to be forged. Resolve every one against an attestation
+            # actually present in the repository and filed by somebody else.
+            if tier.name == "audit":
+                try:
+                    att, term = _audit.resolve(
+                        e["provenance"], self._attestations,
+                        citing_vendor_id=getattr(self.config, "vendor_id", None))
+                except _audit.AttestationError as exc:
+                    raise GateViolation(str(exc)) from exc
+                r.cited_attestations.append((att.id, term, att.auditor_org))
 
         # GATE 2 -- every polarity is earned by named edges, and a claim needs
         # INDEPENDENT support unless it is adverse to the party submitting it.
@@ -281,7 +321,11 @@ class EntryBuilder:
                 "would decide the question the contributor is supposed to answer."
             )
         by_id = {e["id"]: e for e in self._edges}
-        submitter = "vendor"
+        # Derived from who is filing. It was hardcoded to "vendor", which made an
+        # auditor submission structurally impossible to represent: an assessor's
+        # findings are never adverse to the assessor, so every claim they filed
+        # would have demanded independent support that they themselves were.
+        submitter = getattr(self.config, "role", "vendor")
         against_submitter = submitter in self._adverse_to
         for principle, claim in self._polarity.items():
             support = claim["supported_by"] + self._derived_support.get(principle, [])

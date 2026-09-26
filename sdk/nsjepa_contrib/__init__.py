@@ -37,6 +37,9 @@ controls would be worth less than nothing, because it would look like evidence.
     )
     print("\\n".join(report.lines()))
 """
+from . import audit
+from .audit import (Attestation, AttestationError, AuditFinding, AuditorConfig,
+                    Independence)
 from .builder import BuildReport, EntryBuilder, GateViolation
 from .config import (ALL_TERMS, CATEGORIES, GOVERNANCE_TERMS, PROPOSED_TERMS,
                      ContributorConfig)
@@ -48,7 +51,8 @@ from .vocabulary import Vocabulary
 from .version import __version__
 
 __all__ = [
-    "ALL_TERMS", "BuildReport", "CATEGORIES", "ContributorConfig",
+    "ALL_TERMS", "Attestation", "AttestationError", "AuditFinding",
+    "AuditorConfig", "Independence", "audit", "BuildReport", "CATEGORIES", "ContributorConfig",
     "DeploymentObserver", "EntryBuilder", "GOVERNANCE_TERMS", "GateViolation",
     "ObservationLog", "PROPOSED_TERMS", "ProvenanceError", "Status", "TIERS",
     "ComplianceRecord", "TermFinding", "Vocabulary", "assess",

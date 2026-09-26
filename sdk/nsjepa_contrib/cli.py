@@ -6,6 +6,7 @@ import json
 import os
 import sys
 
+from . import audit as _audit
 from .config import (ALL_TERMS, CATEGORIES, GOVERNANCE_TERMS, PROPOSED_TERMS,
                      ConfigError, ContributorConfig)
 from .derive import Status, assess
@@ -93,6 +94,65 @@ def cmd_convergence(a) -> int:
                                         "convergence_report.py"),
            "--root", a.dictionary_root] + (["--check"] if a.check else [])
     return subprocess.call(cmd)
+
+
+def cmd_attest(a) -> int:
+    """File a third-party attestation. The assessor runs this, not the vendor."""
+    findings = []
+    for spec in a.finding:
+        parts = spec.split(":", 2)
+        if len(parts) != 3:
+            print(f"error: --finding wants term:verdict:method, got {spec!r}",
+                  file=sys.stderr)
+            return 2
+        term, verdict, method = parts
+        findings.append(_audit.AuditFinding(term=term, verdict=verdict, method=method))
+
+    att = _audit.Attestation(
+        auditor_id=a.auditor_id, auditor_org=a.auditor_org,
+        deployment_id=a.deployment_id, vendor_id=a.vendor_id,
+        domain=a.domain, category=a.category,
+        period_from=a.period_from or "", period_to=a.period_to or "",
+        issued_at=a.issued_at or _audit.today(),
+        findings=findings, scope_note=a.scope_note or "",
+        independence=_audit.Independence(
+            engaged_by=a.engaged_by,
+            engagement_reference=a.engagement_reference or "",
+            fee_contingent_on_outcome=a.fee_contingent,
+            prior_engagements_with_vendor=a.prior_engagements),
+    )
+    try:
+        path = _audit.write(att, a.dictionary_root)
+    except _audit.AttestationError as exc:
+        print(f"refused: {exc}", file=sys.stderr)
+        return 2
+    print(f"wrote {path}")
+    print(f"  id: {att.id}")
+    print()
+    print("File this as YOUR OWN pull request, from your own identity. The vendor")
+    print("cites it by id; they cannot embed it, and a citation naming an")
+    print("attestation that is not in the repository is refused at build and")
+    print("again on receipt.")
+    print()
+    print("Cite it as:")
+    for f in att.findings:
+        if f.verdict != "inconclusive":
+            print(f"  {att.provenance_for(f.term)}")
+    return 0
+
+
+def cmd_audits(a) -> int:
+    atts = _audit.load_all(a.dictionary_root, a.deployment)
+    if not atts:
+        print("no attestations found under " + _audit.AUDIT_DIR + "/")
+        return 0
+    for aid, att in sorted(atts.items()):
+        print(f"{aid}")
+        print(f"  {att.auditor_org}  audits {att.vendor_id}/{att.deployment_id}"
+              f"  engaged_by={att.independence.engaged_by}")
+        for f in att.findings:
+            print(f"    {f.verdict:<13} {f.term}")
+    return 0
 
 
 def cmd_validate(a) -> int:
@@ -212,6 +272,30 @@ def build_parser() -> argparse.ArgumentParser:
     c.add_argument("--check", action="store_true",
                    help="fail if a previously shared node is no longer shared")
     c.set_defaults(func=cmd_convergence)
+
+    at = sub.add_parser("attest",
+                        help="file a third-party attestation (assessors only)")
+    at.add_argument("--auditor-id", required=True)
+    at.add_argument("--auditor-org", required=True)
+    at.add_argument("--deployment-id", required=True)
+    at.add_argument("--vendor-id", required=True, help="the subject of the audit")
+    at.add_argument("--domain", default="gov_procurement")
+    at.add_argument("--category", default="CAT-09", choices=sorted(CATEGORIES))
+    at.add_argument("--finding", action="append", default=[], required=True,
+                    metavar="TERM:VERDICT:METHOD",
+                    help="repeatable; verdict is met|not_met|inconclusive")
+    at.add_argument("--engaged-by", default="issuing_body",
+                    choices=["issuing_body", "vendor", "other"])
+    at.add_argument("--engagement-reference", help="PO or contract number")
+    at.add_argument("--fee-contingent", action="store_true")
+    at.add_argument("--prior-engagements", type=int, default=0)
+    at.add_argument("--period-from"); at.add_argument("--period-to")
+    at.add_argument("--issued-at"); at.add_argument("--scope-note")
+    at.set_defaults(func=cmd_attest)
+
+    au = sub.add_parser("audits", help="list third-party attestations in the repo")
+    au.add_argument("--deployment")
+    au.set_defaults(func=cmd_audits)
 
     vo = sub.add_parser("vocab", help="resolve node names against the canonical registry")
     vo.add_argument("--domain", default="gov_procurement")

@@ -175,6 +175,15 @@ One tier is independent and still cannot support a *positive* claim:
 `analytic:`, which is true from the definitions. Without that exclusion a
 contributor could define its way to a favourable ethics footnote.
 
+The other independent tier a vendor might reach for is `audit:`, and **you
+cannot mint one.** An `audit:` edge must cite an attestation that exists under
+`contrib/audits/`, filed separately by the assessor, whose `auditor_id` is not
+your `vendor_id`. Use `.audit_edge(...)`; a hand-written
+`provenance="audit:..."` is resolved at build and refused if it names nothing.
+This was a live hole: the gate checked the string prefix, so writing the word
+bought independent support at 0.85 for exactly the favourable claim the gate
+exists to refuse.
+
 Before `supported_by` existed, Type G was checkable against the glyph
 vocabulary and Type C against its provenance tiers, and **Type E was an
 assertion sitting beside the graph with no link to it** — the only footnote a
@@ -278,6 +287,8 @@ Bundles carry a SHA-256 per file and refuse to unpack anything outside `contrib/
 | `validate [path]` | validate one entry, or the whole `contrib/` tree |
 | `vocab [names...]` | resolve node names against the canonical registry |
 | `convergence [--check]` | shared causal nodes across the corpus; `--check` fails on regression |
+| `attest` | **assessors only** — file a third-party attestation |
+| `audits [--deployment]` | list attestations on file |
 | `bundle` / `verify` | air-gapped packaging and receipt |
 | `submit` | open a PR against the common repo |
 
@@ -315,7 +326,9 @@ only one that is checkable *after* award, which is when every failure in the
 CAT-01..09 seed actually happened. It is also the forcing function for this
 package.
 
-**`independent_governance_audit`** — a third-party assessor, engaged and paid by
+**`independent_governance_audit`** — discharged by an attestation filed under
+`contrib/audits/` by the assessor themselves, never by the vendor. See
+[`contrib/audits/README.md`](../contrib/audits/README.md). A third-party assessor, engaged and paid by
 the issuing body rather than the vendor, verifying the terms no runtime probe
 can reach. `nsjepa-contrib terms` marks three of the six selectable §3 terms
 `[NOT OBSERVABLE from inside a product]`: `exit_ready_no_lock_in`,
