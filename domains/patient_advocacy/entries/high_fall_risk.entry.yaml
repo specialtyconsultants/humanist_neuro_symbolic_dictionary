@@ -9,14 +9,22 @@ grounding:
     - {form: hazard-triangle, peirce: symbol, role: logogram}
 causal:
   edges:
-    - {cause: sedation, relation: increases, effect: fall_probability, confidence: 0.7, provenance: cohort_study#9}
-    - {cause: fall_probability, relation: causes, effect: injury, confidence: 0.6, provenance: registry#3}
+    - {id: e1, cause: sedation, relation: increases, effect: fall_probability, confidence: 0.7, provenance: acad:cohort_study#9}
+    - {id: e2, cause: fall_probability, relation: causes, effect: injury, confidence: 0.6, provenance: acad:registry#3}
+    # The autonomy cost was named in the balancing note and encoded nowhere,
+    # which left "least restrictive means" an argument with only one side in the
+    # graph. A restraint that does not restrict is not the least restrictive
+    # means; it is not a means.
+    - {id: e3, cause: bed_alarm, relation: prevents, effect: unassisted_ambulation,
+       confidence: 0.90, provenance: "analytic:restriction#definitional"}
   interventions: ["do(bed_alarm) lowers injury"]
 ethics:
-  principle_polarity: {non_maleficence: "+", autonomy: "-"}
+  principle_polarity:
+    non_maleficence: {polarity: "+", supported_by: [e1, e2]}
+    autonomy:        {polarity: "-", supported_by: [e3]}
   warrants:
     - {claim: least_restrictive_means, principle: non_maleficence}
   balancing_note: non-maleficence(+) vs autonomy(-) via least-restrictive-means
-svo: {subject: sedation, verb: increases, obj: fall_probability, derived_from: cohort_study#9}
+svo: {subject: sedation, verb: increases, obj: fall_probability, derived_from: acad:cohort_study#9}
 glyph_block: {logogram: patient, superfix: risk_is_up, subfix: protective_duty}
 metaphor_type: "orientational (MORE IS UP)"

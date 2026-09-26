@@ -6,7 +6,9 @@
     nsjepa audit  --trace last
 """
 from __future__ import annotations
+
 import argparse
+
 from core.schemas import domain as dom
 
 

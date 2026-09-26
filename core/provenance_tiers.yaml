@@ -1,0 +1,113 @@
+# CANONICAL PROVENANCE TIERS — corpus policy, not SDK policy.
+#
+# What counts as evidence, how much confidence each kind may assert, and which
+# kinds are independent of a contributor. Every entry in this repository is
+# graded against this file.
+#
+# WHY IT LIVES IN core/ AND NOT IN THE SDK. It used to live in
+# sdk/nsjepa_contrib/provenance.py, which put the definition of "independent"
+# inside the vendor-facing distribution: the engine could not read it without
+# installing the contributor SDK, and a fork of that SDK could redefine the
+# tiers for its own submissions. Norms and glyph vocabularies were already
+# loaded from the repository for exactly this reason -- the gates are enforced
+# against the real thing, not against a copy shipped inside a vendor product --
+# and the tier table is the same kind of object.
+#
+# nsjepa_contrib ships a copy so it can run offline in an air-gapped
+# deployment, and a test asserts the shipped copy matches this file. If they
+# ever diverge, this one wins.
+#
+# FIELDS
+#   ceiling               max confidence an edge on this tier may assert
+#   independent           independent of the party submitting the entry
+#   measured              mechanically observed rather than asserted
+#   can_support_positive  may be the independent support for a POSITIVE polarity
+#
+# The asymmetry that motivates `independent`: a contributor reporting that its
+# own deployment harmed someone is testifying against interest and is believed.
+# A contributor reporting that it worked needs somebody else to say so.
+
+version: 1
+tiers:
+  analytic:
+    ceiling: 0.95
+    independent: true
+    measured: false
+    can_support_positive: false
+    gloss: true by the definitions in this entry, or by a named doctrinal premise; evidence
+      can neither raise nor lower it
+  court:
+    ceiling: 0.95
+    independent: true
+    measured: false
+    can_support_positive: true
+    gloss: a judgment or holding of a court
+  regulator:
+    ceiling: 0.9
+    independent: true
+    measured: false
+    can_support_positive: true
+    gloss: a finding by a regulator, inspector general, or auditor general
+  legislature:
+    ceiling: 0.85
+    independent: true
+    measured: false
+    can_support_positive: true
+    gloss: a parliamentary or legislative inquiry finding
+  standards:
+    ceiling: 0.9
+    independent: true
+    measured: false
+    can_support_positive: true
+    gloss: a published standard or list maintained by a recognised body (ISMP high-alert list,
+      NIST AI RMF, Section 508)
+  instrument:
+    ceiling: 0.9
+    independent: true
+    measured: false
+    can_support_positive: true
+    gloss: 'the text of the procurement instrument or contract under analysis. Documentary:
+      it establishes what the instrument SAYS, never that the thing it describes works'
+  acad:
+    ceiling: 0.85
+    independent: true
+    measured: false
+    can_support_positive: true
+    gloss: peer-reviewed or working-paper empirical work
+  audit:
+    ceiling: 0.85
+    independent: true
+    measured: false
+    can_support_positive: true
+    gloss: a third-party assessment of this deployment, engaged and paid by the issuing body,
+      filed by the assessor under contrib/audits/
+  press:
+    ceiling: 0.8
+    independent: true
+    measured: false
+    can_support_positive: true
+    gloss: reporting by a named outlet with a named author
+  runtime:
+    ceiling: 0.85
+    independent: false
+    measured: true
+    can_support_positive: true
+    gloss: telemetry emitted by nsjepa_contrib from the running deployment
+  operator:
+    ceiling: 0.75
+    independent: false
+    measured: false
+    can_support_positive: true
+    gloss: an assertion by the government body operating the system
+  inferred:
+    ceiling: 0.7
+    independent: false
+    measured: false
+    can_support_positive: true
+    gloss: a structural inference, not an observation
+  vendor:
+    ceiling: 0.6
+    independent: false
+    measured: false
+    can_support_positive: true
+    gloss: an assertion by the party that built or sells the system

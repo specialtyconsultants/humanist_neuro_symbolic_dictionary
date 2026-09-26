@@ -7,15 +7,16 @@ vocabulary. `core/` drives every domain uniformly through this interface.
 """
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Protocol, runtime_checkable, Callable
+from typing import Protocol, runtime_checkable
 
-_REGISTRY: dict[str, type["Domain"]] = {}
+_REGISTRY: dict[str, type[Domain]] = {}
 
 
-def register(name: str) -> Callable[[type["Domain"]], type["Domain"]]:
+def register(name: str) -> Callable[[type[Domain]], type[Domain]]:
     """Class decorator that registers a domain pack under `name`."""
-    def _wrap(cls: type["Domain"]) -> type["Domain"]:
+    def _wrap(cls: type[Domain]) -> type[Domain]:
         if name in _REGISTRY:
             raise ValueError(f"domain '{name}' already registered")
         cls.name = name
@@ -24,7 +25,7 @@ def register(name: str) -> Callable[[type["Domain"]], type["Domain"]]:
     return _wrap
 
 
-def get_domain(name: str) -> "Domain":
+def get_domain(name: str) -> Domain:
     if name not in _REGISTRY:
         raise KeyError(f"unknown domain '{name}'; registered: {sorted(_REGISTRY)}")
     return _REGISTRY[name]()
@@ -49,13 +50,13 @@ class Domain(Protocol):
     warrant_rules_path: str     # claim |- principle warrant templates
     glyph_vocab_path: str
 
-    def grounding_space(self) -> "GroundingSpace":
+    def grounding_space(self) -> GroundingSpace:
         """Return the conceptual-space / embedding target the JEPA encoder
         aligns to (the Type-G footnote target). Default impl loads from
         the ontology's quality dimensions."""
         ...
 
-    def principles(self) -> list["Principle"]:
+    def principles(self) -> list[Principle]:
         """The domain's finite normative principles (the 'world model')."""
         ...
 

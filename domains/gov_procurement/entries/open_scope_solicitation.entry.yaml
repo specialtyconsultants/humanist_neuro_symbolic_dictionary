@@ -35,31 +35,38 @@ causal:
   # the six terms in §3 are not governance decoration on a CAT-09 notice. They
   # are the entire specification. Everything else in the instrument is prose.
   edges:
-    - {cause: open_scope_solicitation, relation: causes,
+    - {id: e1, cause: open_scope_solicitation, relation: causes,
        effect: specification_authority_transferred_to_bidder, confidence: 0.90,
-       provenance: "interstate:cat09#blank_instrument"}
-    - {cause: specification_authority_transferred_to_bidder, relation: enables,
+       provenance: "instrument:interstate_cat09#blank_instrument"}
+    - {id: e2, cause: specification_authority_transferred_to_bidder, relation: enables,
        effect: unnamed_architectural_property_omitted, confidence: 0.85,
-       provenance: "interstate:footer#vendor_architecture_disclosure"}
-    - {cause: price_competition_on_unspecified_scope, relation: causes,
-       effect: unnamed_architectural_property_omitted, confidence: 0.80,
-       provenance: "inferred:adverse_selection#economic"}
-    - {cause: unnamed_architectural_property_omitted, relation: prevents,
-       effect: post_award_remedy, confidence: 0.85,
-       provenance: "inferred:contract_scope#structural"}
-    - {cause: open_scope_solicitation, relation: increases,
-       effect: bidder_pool_breadth, confidence: 0.75,
-       provenance: "inferred:market_response#needs_grounding"}
-    - {cause: selected_governance_terms, relation: prevents,
+       provenance: "instrument:interstate_footer#vendor_architecture_disclosure"}
+    - {id: e3, cause: price_competition_on_unspecified_scope, relation: causes,
        effect: unnamed_architectural_property_omitted, confidence: 0.70,
-       provenance: "interstate:s3#binding_requirements"}
+       provenance: "inferred:adverse_selection#economic"}
+    - {id: e4, cause: unnamed_architectural_property_omitted, relation: prevents,
+       effect: post_award_remedy, confidence: 0.85,
+       provenance: "analytic:contract_scope#definitional"}
+    - {id: e5, cause: open_scope_solicitation, relation: increases,
+       effect: bidder_pool_breadth, confidence: 0.70,
+       provenance: "inferred:market_response#needs_grounding"}
+    - {id: e6, cause: selected_governance_terms, relation: prevents,
+       effect: unnamed_architectural_property_omitted, confidence: 0.70,
+       provenance: "instrument:interstate_s3#binding_requirements"}
   interventions:
     - "do(name_required_architectural_properties_as_clins) removes unnamed_architectural_property_omitted"
     - "do(select_all_governance_terms) lowers unnamed_architectural_property_omitted"
     - "do(two_stage_solicitation_rfi_then_rfp) lowers specification_authority_transferred_to_bidder"
 ethics:
-  principle_polarity: {open_competition: "+", best_value_integrity: "-",
-                       transparency: "-", continuity_of_public_capacity: "-"}
+  principle_polarity:
+    best_value_integrity:          {polarity: "-", supported_by: [e3, e4]}
+    transparency:                  {polarity: "-", supported_by: [e1, e2]}
+    continuity_of_public_capacity: {polarity: "-", supported_by: [e2, e4]}
+  # DROPPED: open_competition "+". This one costs the most, because it is the
+  # honest case FOR the blank instrument and the entry is weaker without it. Its
+  # only support was e5, inferred-tier and already marked needs_grounding: a
+  # plausible claim about market response with nothing behind it. Ground e5 and
+  # the polarity returns. Highest-value grounding target in this entry.
   warrants:
     - {claim: unrestricted_solicitation,   principle: open_competition}
     - {claim: disclosed_evaluation_criteria, principle: transparency}
@@ -82,10 +89,10 @@ svo:
   subject: open_scope_solicitation
   verb: causes
   obj: specification_authority_transferred_to_bidder
-  derived_from: "interstate:cat09#blank_instrument"
+  derived_from: "instrument:interstate_cat09#blank_instrument"
 glyph_block:
   logogram: empty_frame
   superfix: contest_frame
   subfix: open_competition
 metaphor_type: "structural (A SPECIFICATION IS A CONTAINER — CAT-09 ships the container empty and the bidder fills it)"
-provenance: "interstate:cat09"
+provenance: "instrument:interstate_cat09"

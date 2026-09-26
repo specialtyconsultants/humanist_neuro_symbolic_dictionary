@@ -17,17 +17,19 @@ causal:
   # (look-alike floor stock, absent independent double-check) are held out of
   # the graph until a regulatory finding raises them above the journalism tier.
   edges:
-    - {cause: iv_concentrated_potassium, relation: causes,
-       effect: neural_tissue_injury, confidence: 0.85, provenance: ismp:high_alert_list}
-    - {cause: high_alert_medication_substitution, relation: causes,
-       effect: patient_harm, confidence: 0.80, provenance: cbs:nashville_2026-08-14#outcomes}
-    - {cause: neural_tissue_injury, relation: causes,
-       effect: irreversible_neurologic_injury, confidence: 0.70, provenance: cbs:nashville_2026-08-14#outcomes}
+    - {id: e1, cause: iv_concentrated_potassium, relation: causes,
+       effect: neural_tissue_injury, confidence: 0.85, provenance: standards:ismp_high_alert_list}
+    - {id: e2, cause: high_alert_medication_substitution, relation: causes,
+       effect: patient_harm, confidence: 0.80, provenance: press:cbs_nashville_2026-08-14#outcomes}
+    - {id: e3, cause: neural_tissue_injury, relation: causes,
+       effect: irreversible_neurologic_injury, confidence: 0.70, provenance: press:cbs_nashville_2026-08-14#outcomes}
   interventions:
     - "do(remove_concentrated_kcl_from_floor_stock) lowers high_alert_medication_substitution"
     - "do(independent_double_check) lowers high_alert_medication_substitution"
 ethics:
-  principle_polarity: {non_maleficence: "-", beneficence: "-"}
+  principle_polarity:
+    non_maleficence: {polarity: "-", supported_by: [e1, e2, e3]}
+    beneficence:     {polarity: "-", supported_by: [e2, e3]}
   warrants:
     - {claim: least_restrictive_means, principle: non_maleficence}
   balancing_note: >
@@ -38,10 +40,10 @@ svo:
   subject: high_alert_medication_substitution
   verb: causes
   obj: patient_harm
-  derived_from: cbs:nashville_2026-08-14#outcomes
+  derived_from: press:cbs_nashville_2026-08-14#outcomes
 glyph_block:
-  logogram: vial-pair
+  logogram: vial_pair
   superfix: risk_is_up
   subfix: protective_duty
 metaphor_type: "orientational (MORE IS UP) over ontological (MEDICATION IS A CONTAINER)"
-provenance: cbs:nashville_2026-08-14
+provenance: press:cbs_nashville_2026-08-14

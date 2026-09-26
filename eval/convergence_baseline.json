@@ -1,0 +1,16 @@
+{
+  "entries": 13,
+  "nodes": 84,
+  "shared_nodes": 4,
+  "cross_domain_nodes": 1,
+  "convergence_ratio": 0.0476,
+  "shared": [
+    "burden_shift_to_the_affected_person",
+    "deprivation_before_adjudication",
+    "informed_recourse",
+    "irreversible_neurologic_injury"
+  ],
+  "cross_domain": [
+    "informed_recourse"
+  ]
+}

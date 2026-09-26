@@ -12,19 +12,22 @@ grounding:
     - {form: severed-link, peirce: index, role: logogram}
 causal:
   edges:
-    - {cause: discharge_before_results_return, relation: enables,
-       effect: unreported_critical_result, confidence: 0.90, provenance: coc:2007-08228#facts}
-    - {cause: unreported_critical_result, relation: delays,
-       effect: diagnosis, confidence: 0.90, provenance: coc:2007-08228#facts}
-    - {cause: diagnostic_delay, relation: increases,
-       effect: irreversible_neurologic_injury, confidence: 0.85, provenance: coc:2007-08228#holding}
-    - {cause: unreported_critical_result, relation: prevents,
-       effect: informed_recourse, confidence: 0.80, provenance: coc:2007-08228#facts}
+    - {id: e1, cause: discharge_before_results_return, relation: enables,
+       effect: unreported_critical_result, confidence: 0.90, provenance: court:coc_2007-08228#facts}
+    - {id: e2, cause: unreported_critical_result, relation: delays,
+       effect: diagnosis, confidence: 0.90, provenance: court:coc_2007-08228#facts}
+    - {id: e3, cause: diagnostic_delay, relation: increases,
+       effect: irreversible_neurologic_injury, confidence: 0.85, provenance: court:coc_2007-08228#holding}
+    - {id: e4, cause: unreported_critical_result, relation: prevents,
+       effect: informed_recourse, confidence: 0.80, provenance: court:coc_2007-08228#facts}
   interventions:
     - "do(closed_loop_result_notification) removes unreported_critical_result"
     - "do(hold_discharge_until_results) removes discharge_before_results_return"
 ethics:
-  principle_polarity: {non_maleficence: "-", autonomy: "-", beneficence: "-"}
+  principle_polarity:
+    non_maleficence: {polarity: "-", supported_by: [e2, e3]}
+    autonomy:        {polarity: "-", supported_by: [e4]}
+    beneficence:     {polarity: "-", supported_by: [e2, e3]}
   warrants:
     - {claim: duty_to_communicate_results, principle: non_maleficence}
     - {claim: informed_of_own_results, principle: autonomy}
@@ -36,10 +39,10 @@ svo:
   subject: unreported_critical_result
   verb: delays
   obj: diagnosis
-  derived_from: coc:2007-08228#facts
+  derived_from: court:coc_2007-08228#facts
 glyph_block:
   logogram: document
   superfix: link_is_broken
   subfix: protective_duty
 metaphor_type: "structural (COMMUNICATION IS A CONDUIT — conduit severed)"
-provenance: coc:2007-08228
+provenance: court:coc_2007-08228

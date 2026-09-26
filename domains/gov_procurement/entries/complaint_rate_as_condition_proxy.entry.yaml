@@ -38,23 +38,23 @@ causal:
   # is manufactured over subsequent epochs by the model's own effect on the
   # inspection schedule that generates its next training set.
   edges:
-    - {cause: "civic_trust_disparity@t", relation: causes,
+    - {id: e1, cause: "civic_trust_disparity@t", relation: causes,
        effect: "under_reporting_by_neighbourhood@t", confidence: 0.75,
        provenance: "acad:street_bump_2013#reporting_skew"}
-    - {cause: "under_reporting_by_neighbourhood@t", relation: causes,
+    - {id: e2, cause: "under_reporting_by_neighbourhood@t", relation: causes,
        effect: low_predicted_failure_risk, confidence: 0.85,
-       provenance: "inferred:target_leakage#structural"}
-    - {cause: low_predicted_failure_risk, relation: prevents,
-       effect: scheduled_inspection, confidence: 0.80,
+       provenance: "analytic:target_leakage#definitional"}
+    - {id: e3, cause: low_predicted_failure_risk, relation: prevents,
+       effect: scheduled_inspection, confidence: 0.70,
        provenance: "inferred:triage_policy#structural"}
-    - {cause: scheduled_inspection, relation: enables,
+    - {id: e4, cause: scheduled_inspection, relation: enables,
        effect: condition_discovery, confidence: 0.90,
-       provenance: "inferred:observability#structural"}
-    - {cause: condition_discovery, relation: prevents,
+       provenance: "analytic:observability#definitional"}
+    - {id: e5, cause: condition_discovery, relation: prevents,
        effect: unaddressed_asset_failure, confidence: 0.85,
-       provenance: "case:syracuse_water_main_2016#method"}
+       provenance: "acad:syracuse_water_main_2016#method"}
     # --- loop closure into the next epoch ---
-    - {cause: unaddressed_asset_failure, relation: increases,
+    - {id: e6, cause: unaddressed_asset_failure, relation: increases,
        effect: "civic_trust_disparity@t1", confidence: 0.60,
        provenance: "inferred:loop_closure#needs_grounding"}
     # ^ the weak link, deliberately. That sustained neglect erodes the
@@ -63,16 +63,21 @@ causal:
     #   edge is not licensed to carry the argument alone — and it does not have
     #   to, because the target-leakage edge above stands without it.
     # the exogenous break in the loop, and why Syracuse is the good case:
-    - {cause: instrumented_asset_telemetry, relation: enables,
+    - {id: e7, cause: instrumented_asset_telemetry, relation: enables,
        effect: condition_discovery, confidence: 0.85,
-       provenance: "case:syracuse_water_main_2016#method"}
+       provenance: "acad:syracuse_water_main_2016#method"}
   interventions:
     - "do(fit_on_asset_attributes_not_report_volume) removes complaint_rate_as_condition_proxy"
     - "do(stratified_random_physical_inspection) enables condition_discovery"
     - "do(exogenous_sensor_ground_truth) removes low_predicted_failure_risk"
 ethics:
-  principle_polarity: {non_discrimination: "-", resident_non_maleficence: "-",
-                       best_value_integrity: "+"}
+  principle_polarity:
+    non_discrimination:       {polarity: "-", supported_by: [e1, e2, e3, e6]}
+    resident_non_maleficence: {polarity: "-", supported_by: [e3, e4, e5]}
+    best_value_integrity:     {polarity: "+", supported_by: [e7]}
+  # The only positive polarity in this seed that survived the independence
+  # requirement. e7 is acad-tier and describes a deployment that worked, which
+  # is what a positive claim needs and what the other four did not have.
   warrants:
     - {claim: bias_and_impact_testing, principle: non_discrimination}
   balancing_note: >
@@ -94,7 +99,7 @@ svo:
   subject: "under_reporting_by_neighbourhood@t"
   verb: causes
   obj: low_predicted_failure_risk
-  derived_from: "inferred:target_leakage#structural"
+  derived_from: "analytic:target_leakage#definitional"
 glyph_block:
   logogram: tally
   superfix: visible_is_lit

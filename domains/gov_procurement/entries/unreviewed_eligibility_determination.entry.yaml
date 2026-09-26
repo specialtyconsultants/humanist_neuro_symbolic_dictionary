@@ -28,20 +28,20 @@ causal:
   # government from reactive to proactive") acquires the adverse capability in
   # the same instrument, at the same price, under the same governance terms.
   edges:
-    - {cause: automated_data_match, relation: enables,
+    - {id: e1, cause: automated_data_match, relation: enables,
        effect: unreviewed_eligibility_determination, confidence: 0.90,
-       provenance: "mi_oag:midas_audit_2016#methodology"}
-    - {cause: unreviewed_eligibility_determination, relation: causes,
+       provenance: "regulator:mi_oag_midas_audit_2016#methodology"}
+    - {id: e2, cause: unreviewed_eligibility_determination, relation: causes,
        effect: erroneous_adverse_action, confidence: 0.85,
-       provenance: "mi_oag:midas_audit_2016#93pct_finding"}
-    - {cause: erroneous_adverse_action, relation: causes,
+       provenance: "regulator:mi_oag_midas_audit_2016#93pct_finding"}
+    - {id: e3, cause: erroneous_adverse_action, relation: causes,
        effect: deprivation_before_adjudication, confidence: 0.80,
-       provenance: "bauserman:160813#facts"}
-    - {cause: burden_shift_to_the_affected_person, relation: prevents,
+       provenance: "court:bauserman_160813#facts"}
+    - {id: e4, cause: burden_shift_to_the_affected_person, relation: prevents,
        effect: timely_reversal, confidence: 0.75,
-       provenance: "bauserman:160813#due_process_claim"}
+       provenance: "court:bauserman_160813#due_process_claim"}
     # positive direction, same pipeline, retained deliberately:
-    - {cause: automated_data_match, relation: increases,
+    - {id: e5, cause: automated_data_match, relation: increases,
        effect: benefit_takeup_among_eligible, confidence: 0.70,
        provenance: "inferred:auto_enrollment#needs_grounding"}
   interventions:
@@ -49,8 +49,13 @@ causal:
     - "do(continue_benefit_pending_appeal) removes deprivation_before_adjudication"
     - "do(agency_bears_burden_of_proof) enables timely_reversal"
 ethics:
-  principle_polarity: {due_process: "-", resident_non_maleficence: "-",
-                       meaningful_access: "+", best_value_integrity: "+/-"}
+  principle_polarity:
+    due_process:              {polarity: "-",   supported_by: [e2, e3, e4]}
+    resident_non_maleficence: {polarity: "-",   supported_by: [e2, e3]}
+    best_value_integrity:     {polarity: "+/-", supported_by: [e1, e2]}
+  # DROPPED: meaningful_access "+". Supported only by e5, inferred-tier. That
+  # the same pipeline raises take-up among the eligible is the entire benevolent
+  # case for CAT-02, and this entry had no independent evidence for it.
   warrants:
     - {claim: human_in_the_loop, principle: due_process}
     - {claim: no_deprivation_pending_review, principle: due_process}   # source: proposed
@@ -72,10 +77,10 @@ svo:
   subject: unreviewed_eligibility_determination
   verb: causes
   obj: erroneous_adverse_action
-  derived_from: "mi_oag:midas_audit_2016#93pct_finding"
+  derived_from: "regulator:mi_oag_midas_audit_2016#93pct_finding"
 glyph_block:
   logogram: gate
   superfix: fast_is_forward
   subfix: due_process
 metaphor_type: "orientational (PROACTIVE IS FORWARD) — the metaphor is directionless about sign, which is the defect"
-provenance: "bauserman:160813"
+provenance: "court:bauserman_160813"

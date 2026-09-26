@@ -95,3 +95,44 @@ warrants:
       forced by gpr:automated_completeness_rejection. A rejection that yields no
       adjudicated decision yields nothing to appeal, and leaves the cycle-time
       metric rather than appearing in it as a failure.
+
+  # --- the two terms that make the rest of this list checkable --------------
+  # Every other term here is verified at proposal time and unfalsifiable
+  # afterwards, and every failure in the CAT-01..09 seed happened after award.
+  # These close that window from both ends: one buys continuous evidence for the
+  # terms a product can measure about itself, the other buys an assessor for the
+  # terms it cannot.
+  - claim: verifiable_governance_telemetry
+    principle: transparency
+    source: proposed
+    balancing_note: >
+      the system emits signed, continuous evidence of whether the other terms
+      were met in production, to the issuing body and to a common repository.
+      Alone among the terms here it is discharged by mechanism rather than by
+      assertion — the evidence for it is the existence of the evidence. It is
+      also the forcing function for the contributor SDK: a vendor ships
+      something capable of withdrawing its own compliance claim only when not
+      shipping it costs more, and this is the term that makes that true.
+      Note what it does NOT do. Telemetry establishes what the instrumentation
+      reported, not what happened, and the instrumentation belongs to the
+      vendor. It is capped at the `runtime:` tier and marked non-independent for
+      that reason. A floor, not an audit.
+  - claim: independent_governance_audit
+    principle: coi_avoidance
+    source: proposed
+    balancing_note: >
+      a third-party assessor, engaged and paid by the ISSUING BODY rather than
+      the vendor, verifies the terms no runtime probe can reach —
+      exit_ready_no_lock_in, data_residency_no_training,
+      minority_view_preservation — and files findings at the `audit:` tier,
+      which counts as independent support where a vendor's own findings do not.
+      This is the first live use of coi_avoidance in this domain. The principle
+      was declared from the start and no entry exercised it, because the five
+      original principles govern the award process and nothing in the seed is
+      about the award. Independence of the party doing the verifying is exactly
+      a conflict-of-interest control, and it is where the principle earns its
+      place.
+      Cost is the honest objection. The answer is that roughly half the
+      governance posture is otherwise unverifiable, and an unverifiable
+      requirement is not cheaper than an audited one — it is a requirement whose
+      failure nobody will detect.

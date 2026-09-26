@@ -1,0 +1,129 @@
+# Canonical causal-node registry for gov_procurement.
+#
+# WHY THIS FILE EXISTS. The value of the dictionary is that entries written by
+# unrelated people from unrelated events converge on shared nodes without
+# coordination. That convergence is real but it is NOT automatic. The first
+# pass at the CAT-01..09 seed produced 71 nodes with zero overlap, because the
+# same capacity had been named `reliance_defense`, `impeachment_of_the_record`,
+# `contestation_of_grounds`, `right_of_appeal`, and `informed_recourse` in five
+# different entries. Nothing was wrong with any of those names. The graph was
+# simply unable to say they were the same thing.
+#
+# A dictionary that accepts contributions from many vendors will lose the
+# convergence property on its first day unless node identity is governed. This
+# registry is that governance. `nsjepa_contrib` resolves every node name
+# against it before an entry can be built.
+#
+# Registering a node is cheap and un-registering is expensive, so the bar is
+# low: if two entries would mean the same thing by it, register it.
+
+version: 1
+domain: gov_procurement
+
+nodes:
+  # --- the capacity the affected person has, or does not ---------------------
+  informed_recourse:
+    gloss: >
+      the affected person's ability to contest an outcome before a body that
+      can reverse it, knowing the grounds
+    aliases:
+      - reliance_defense
+      - right_of_appeal
+      - contestation_of_grounds
+      - impeachment_of_the_record
+      - ability_to_appeal
+      - right_to_contest
+    note: >
+      shared with domain patient_advocacy, where it was arrived at
+      independently. Do not fork it. Cross-domain shared nodes are the whole
+      point and there are currently only a handful.
+
+  deprivation_before_adjudication:
+    gloss: a benefit, payment, licence, or asset withdrawn before a decision is made
+    aliases: [asset_seizure_before_hearing, suspension_before_decision,
+              benefit_stopped_pending_review]
+
+  burden_shift_to_the_affected_person:
+    gloss: the person must disprove the system's output rather than the body proving it
+    aliases: [burden_of_disproof_on_resident, burden_shift_to_flagged_person]
+
+  adjudicated_decision:
+    gloss: a decision on the merits, of a kind that can be appealed
+    aliases: [decision_on_the_merits]
+
+  # --- what the system does to the record ------------------------------------
+  unexercised_provenance:
+    gloss: >
+      the source is retained and citable but is never actually consulted,
+      because reading the summary is cheaper at every future decision point
+    aliases: [provenance_in_principle_only]
+
+  attribution_of_authorship:
+    gloss: the ability to say which part of a record was written by a machine
+    aliases: [authorship_separability]
+
+  # --- what the system does to the signal ------------------------------------
+  condition_discovery:
+    gloss: the true state of an asset or case becoming known to the body
+    aliases: [ground_truth_observation]
+
+  minority_viewpoint_visibility:
+    gloss: a position held by few surviving aggregation into the synthesis
+    aliases: [minority_view_survival]
+
+  # --- what the system does to access ----------------------------------------
+  meaningful_notice:
+    gloss: >
+      a notice whose recipient can actually read it; distinct from a notice
+      validly served, which is a jurisdictional fact and does not require this
+    aliases: [comprehensible_notice]
+
+  output_verification:
+    gloss: >
+      someone competent to judge the output in fact judging it, as distinct
+      from an approval workflow that records that they clicked
+    aliases: [substantive_review, competent_review]
+
+  # --- harms -----------------------------------------------------------------
+  resident_legal_exposure:
+    gloss: the resident is placed in violation of a rule by following the system
+    aliases: [liability_transferred_to_resident]
+
+  disparate_adverse_rate:
+    gloss: adverse outputs concentrated on a protected or under-served class
+    aliases: [disparate_flag_rate, disparate_impact]
+
+  applicant_abandonment:
+    gloss: the person stops pursuing the entitlement rather than being refused it
+    aliases: [procedural_exit, churn]
+
+  # --- emitted by nsjepa_contrib.derive from runtime telemetry ---------------
+  # These are the only nodes a machine writes into this graph. They are
+  # registered here rather than invented at emission time, so that the SDK
+  # cannot quietly grow the vocabulary of a domain it is only contributing to.
+  automated_action_without_prior_human_decision:
+    gloss: >
+      a consequential action that took effect before any human decided it;
+      distinct from an unreviewed action, because a review did occur — after
+    aliases: [hitl_after_the_fact]
+  suspension_pending_investigation:
+    gloss: a benefit stopped while a flag is investigated
+  draft_erased_on_export:
+    gloss: the pre-edit machine draft destroyed when the record was filed
+  automated_completeness_rejection:
+    gloss: an application returned at intake without reaching adjudication
+  unverifiable_translation:
+    gloss: >
+      a notice issued in a language nobody at the issuing body reads, so its
+      correctness cannot be evaluated at the point of issue
+  instrumented_asset_telemetry:
+    gloss: >
+      an indexical measurement of the asset itself, as opposed to a report
+      about it; the exogenous signal that breaks a complaint-rate feedback loop
+
+# Time-indexed nodes use the `@` suffix convention: `civic_trust_disparity@t`,
+# `civic_trust_disparity@t1`. The suffix is stripped before registry lookup, so
+# register the base name only. Unrolling in time is how a feedback loop is
+# expressed without making the SCM cyclic; see
+# gpr:complaint_rate_as_condition_proxy.
+time_index_separator: "@"
