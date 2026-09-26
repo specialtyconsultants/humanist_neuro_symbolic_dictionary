@@ -8,9 +8,15 @@ from __future__ import annotations
 import os
 
 import pytest
-
-from nsjepa_contrib import (ContributorConfig, DeploymentObserver, EntryBuilder,
-                            GateViolation, Status, assess, compliance_record)
+from nsjepa_contrib import (
+    ContributorConfig,
+    DeploymentObserver,
+    EntryBuilder,
+    GateViolation,
+    Status,
+    assess,
+    compliance_record,
+)
 from nsjepa_contrib.provenance import ProvenanceError, check_confidence, shrink_to_sample
 from nsjepa_contrib.validate import Level, validate_entry
 from nsjepa_contrib.vocabulary import Vocabulary
@@ -19,9 +25,9 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
 def cfg(**kw):
-    base = dict(vendor_id="acme-civic", product="Acme Benefits Copilot 3.2",
-                deployment_id="test-deploy", category="CAT-02",
-                governance_terms=["human_in_the_loop"], dictionary_root=ROOT)
+    base = {"vendor_id": "acme-civic", "product": "Acme Benefits Copilot 3.2",
+                "deployment_id": "test-deploy", "category": "CAT-02",
+                "governance_terms": ["human_in_the_loop"], "dictionary_root": ROOT}
     base.update(kw)
     return ContributorConfig(**base)
 
@@ -347,3 +353,27 @@ def test_superseded_entry_must_be_retired():
 def test_provisional_contribution_needs_a_review_date():
     findings = validate_entry(_built_entry(), root=ROOT)
     assert any(f.level is Level.ERROR and "review_by" in f.message for f in findings)
+
+
+# --- the tier table is corpus policy, not SDK policy ------------------------
+
+def test_shipped_tier_table_matches_the_canonical_one():
+    """`core/provenance_tiers.yaml` is canonical; this package ships a copy so it
+    can run air-gapped. If they ever diverge, the repository wins — and a vendor
+    SDK quietly redefining what counts as independent evidence is exactly the
+    drift worth failing a build over."""
+    import yaml as _yaml
+    from nsjepa_contrib.provenance import TIERS
+    with open(os.path.join(ROOT, "core", "provenance_tiers.yaml"),
+              encoding="utf-8") as fh:
+        canonical = _yaml.safe_load(fh)["tiers"]
+    assert set(canonical) == set(TIERS), (
+        f"tier names differ: only in repo {sorted(set(canonical) - set(TIERS))}, "
+        f"only in SDK {sorted(set(TIERS) - set(canonical))}")
+    for name, spec in canonical.items():
+        t = TIERS[name]
+        assert t.ceiling == spec["ceiling"], f"{name}: ceiling drifted"
+        assert t.independent == spec["independent"], f"{name}: independent drifted"
+        assert t.measured == spec["measured"], f"{name}: measured drifted"
+        assert t.can_support_positive == spec["can_support_positive"], (
+            f"{name}: can_support_positive drifted")

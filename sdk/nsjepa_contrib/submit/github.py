@@ -90,7 +90,8 @@ def submit(entry_paths: list[str], *, vendor_id: str, deployment_id: str,
     committed = []
     for path in entry_paths:
         rel = os.path.relpath(path, root).replace(os.sep, "/")
-        content = base64.b64encode(open(path, "rb").read()).decode()
+        with open(path, "rb") as fh:
+            content = base64.b64encode(fh.read()).decode()
         payload = {"message": f"contrib({vendor_id}): {os.path.basename(rel)}",
                    "content": content, "branch": branch}
         try:

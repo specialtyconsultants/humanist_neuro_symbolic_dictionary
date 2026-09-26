@@ -100,7 +100,7 @@ class PolarityClaim:
     supported_by: list[str] = field(default_factory=list)
 
     @classmethod
-    def coerce(cls, value) -> "PolarityClaim":
+    def coerce(cls, value) -> PolarityClaim:
         """Accept a bare "+"/"-"/"+/-" for the pre-`supported_by` form.
 
         Tolerated on read so old files load; reported by the validator as an

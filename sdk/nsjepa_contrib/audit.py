@@ -51,6 +51,7 @@ from dataclasses import asdict, dataclass, field
 
 import yaml
 
+from ._io import read_yaml
 from .config import ALL_TERMS, CATEGORIES, ConfigError
 
 SCHEMA = "nsjepa-contrib-attestation/1"
@@ -281,7 +282,7 @@ def _from_dict(d: dict) -> Attestation:
 
 
 def load(path: str) -> Attestation:
-    att = _from_dict(yaml.safe_load(open(path, encoding="utf-8")) or {})
+    att = _from_dict(read_yaml(path) or {})
     att.check()
     return att
 
@@ -295,7 +296,10 @@ def load_all(root: str = ".", deployment_id: str | None = None) -> dict[str, Att
     for p in sorted(glob.glob(pattern, recursive=True)):
         try:
             att = load(p)
-        except Exception:
+        except Exception:  # noqa: BLE001, S112
+            # Deliberate. This is the lookup path: one malformed attestation
+            # from another assessor must not make every other citation in the
+            # repository unresolvable. `validate` reports bad files loudly.
             continue
         if deployment_id and att.deployment_id != deployment_id:
             continue
@@ -343,4 +347,14 @@ def resolve(provenance: str, attestations: dict[str, Attestation],
 
 
 def today() -> str:
-    return datetime.date.today().isoformat()
+    """UTC, not local.
+
+    An attestation's issued_at and an entry's review_by are calendar dates that
+    appear in a public record and are compared across filers. Local time would
+    make the same filing carry two different dates depending on who ran it.
+    """
+    # `datetime.UTC` is 3.11+, and sdk/pyproject.toml declares >=3.10 on
+    # purpose: this package installs into vendor products whose Python is
+    # not ours to choose. ruff reads the ROOT pyproject's 3.11 floor and
+    # does not know this distribution has a lower one.
+    return datetime.datetime.now(datetime.timezone.utc).date().isoformat()  # noqa: UP017

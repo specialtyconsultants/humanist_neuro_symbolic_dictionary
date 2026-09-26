@@ -38,23 +38,40 @@ controls would be worth less than nothing, because it would look like evidence.
     print("\\n".join(report.lines()))
 """
 from . import audit
-from .audit import (Attestation, AttestationError, AuditFinding, AuditorConfig,
-                    Independence)
+from .audit import Attestation, AttestationError, AuditFinding, AuditorConfig, Independence
 from .builder import BuildReport, EntryBuilder, GateViolation
-from .config import (ALL_TERMS, CATEGORIES, GOVERNANCE_TERMS, PROPOSED_TERMS,
-                     ContributorConfig)
-from .derive import (ComplianceRecord, Status, TermFinding, assess,
-                     compliance_record, derive_edges)
+from .config import ALL_TERMS, CATEGORIES, GOVERNANCE_TERMS, PROPOSED_TERMS, ContributorConfig
+from .derive import ComplianceRecord, Status, TermFinding, assess, compliance_record, derive_edges
 from .observer import DeploymentObserver, ObservationLog
 from .provenance import TIERS, ProvenanceError
-from .vocabulary import Vocabulary
 from .version import __version__
+from .vocabulary import Vocabulary
 
 __all__ = [
-    "ALL_TERMS", "Attestation", "AttestationError", "AuditFinding",
-    "AuditorConfig", "Independence", "audit", "BuildReport", "CATEGORIES", "ContributorConfig",
-    "DeploymentObserver", "EntryBuilder", "GOVERNANCE_TERMS", "GateViolation",
-    "ObservationLog", "PROPOSED_TERMS", "ProvenanceError", "Status", "TIERS",
-    "ComplianceRecord", "TermFinding", "Vocabulary", "assess",
-    "compliance_record", "derive_edges", "__version__",
+                    "ALL_TERMS",
+                    "CATEGORIES",
+                    "GOVERNANCE_TERMS",
+                    "PROPOSED_TERMS",
+                    "TIERS",
+                    "Attestation",
+                    "AttestationError",
+                    "AuditFinding",
+                    "AuditorConfig",
+                    "BuildReport",
+                    "ComplianceRecord",
+                    "ContributorConfig",
+                    "DeploymentObserver",
+                    "EntryBuilder",
+                    "GateViolation",
+                    "Independence",
+                    "ObservationLog",
+                    "ProvenanceError",
+                    "Status",
+                    "TermFinding",
+                    "Vocabulary",
+                    "__version__",
+                    "assess",
+                    "audit",
+                    "compliance_record",
+                    "derive_edges",
 ]

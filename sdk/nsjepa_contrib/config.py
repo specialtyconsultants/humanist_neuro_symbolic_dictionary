@@ -14,8 +14,9 @@ from __future__ import annotations
 
 import json
 import os
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from typing import NamedTuple
+
 
 class Term(NamedTuple):
     """A governance term, and whether anything can check it.
@@ -159,7 +160,7 @@ class ContributorConfig:
 
     # -- io -----------------------------------------------------------------
     @classmethod
-    def load(cls, path: str = "nsjepa_contrib.json") -> "ContributorConfig":
+    def load(cls, path: str = "nsjepa_contrib.json") -> ContributorConfig:
         if not os.path.exists(path):
             raise ConfigError(
                 f"no config at {path}. Run `nsjepa-contrib init` to write one."

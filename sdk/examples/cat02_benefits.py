@@ -19,15 +19,22 @@ import random
 #: The corrections protocol (docs/adr/0003) requires a review date on any
 #: provisional entry that names a party. This one names a vendor, a product, and
 #: a county.
-REVIEW_BY = (datetime.date.today() + datetime.timedelta(days=180)).isoformat()
+REVIEW_BY = (datetime.datetime.now(datetime.timezone.utc).date()  # noqa: UP017
+             + datetime.timedelta(days=180)).isoformat()
 
-from nsjepa_contrib import (ContributorConfig, DeploymentObserver, EntryBuilder,
-                            __version__, assess, compliance_record)
+from nsjepa_contrib import (
+    ContributorConfig,
+    DeploymentObserver,
+    EntryBuilder,
+    __version__,
+    assess,
+    compliance_record,
+)
 from nsjepa_contrib.emit import write, write_compliance
 from nsjepa_contrib.validate import validate_file
 
 
-def simulate(deployment_id: str, seed: int = 7) -> "ObservationLog":  # noqa: F821
+def simulate(deployment_id: str, seed: int = 7) -> ObservationLog:  # noqa: F821
     """Stand-in for a real product's decision path.
 
     In a real integration these calls live wherever the determination is made

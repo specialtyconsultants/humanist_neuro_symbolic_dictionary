@@ -17,9 +17,8 @@ import os
 from dataclasses import dataclass
 from enum import Enum
 
-import yaml
-
 from . import audit as _audit
+from ._io import read_yaml
 from .builder import DomainNorms
 from .provenance import ProvenanceError, check_confidence, parse
 from .vocabulary import Vocabulary
@@ -41,7 +40,7 @@ class Finding:
 
 
 def validate_file(path: str, root: str = ".") -> list[Finding]:
-    entry = yaml.safe_load(open(path, encoding="utf-8"))
+    entry = read_yaml(path)
     return validate_entry(entry, root=root, where=os.path.basename(path))
 
 
@@ -73,7 +72,10 @@ def validate_entry(entry: dict, root: str = ".", where: str = "<entry>",
     domain = entry["domain"]
     try:
         norms = DomainNorms.load(domain, root)
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001
+        # Any failure to load the domain's norms is reported as a finding
+        # rather than raised: a validator that crashes on one bad file tells
+        # the contributor nothing about the other twelve.
         err(f"cannot load domain norms: {exc}")
         return out
     vocab = Vocabulary.load(domain, root)
@@ -102,7 +104,7 @@ def validate_entry(entry: dict, root: str = ".", where: str = "<entry>",
         # twice.
         if tier.name == "audit":
             try:
-                att, term = _audit.resolve(
+                att, _term = _audit.resolve(
                     e["provenance"], _attestations,
                     citing_vendor_id=(entry.get("contributed_by") or {}).get("vendor_id"))
             except _audit.AttestationError as exc:
@@ -242,11 +244,13 @@ def recurring_nodes(root: str = ".", patterns: tuple[str, ...] =
     for pattern in patterns:
         for path in glob.glob(os.path.join(root, pattern), recursive=True):
             try:
-                e = yaml.safe_load(open(path, encoding="utf-8"))
+                e = read_yaml(path)
                 for ed in (e.get("causal") or {}).get("edges", []):
                     for k in ("cause", "effect"):
                         seen[str(ed[k]).split("@")[0]].add(e.get("id", path))
-            except Exception:
+            except Exception:  # noqa: BLE001, S112
+                # Same posture as audit.load_all: one unreadable neighbour must
+                # not make the corpus-wide node census unavailable.
                 continue
     return {n for n, v in seen.items() if len(v) > 1}
 
@@ -255,7 +259,7 @@ def validate_tree(root: str = ".", pattern: str = "contrib/**/*.entry.yaml") -> 
     out: list[Finding] = []
     recurring = recurring_nodes(root)
     for path in sorted(glob.glob(os.path.join(root, pattern), recursive=True)):
-        entry = yaml.safe_load(open(path, encoding="utf-8"))
+        entry = read_yaml(path)
         out.extend(validate_entry(entry, root=root, where=os.path.basename(path),
                                   recurring_nodes=recurring))
     return out

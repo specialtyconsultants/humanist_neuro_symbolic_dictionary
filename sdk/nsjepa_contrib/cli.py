@@ -7,8 +7,14 @@ import os
 import sys
 
 from . import audit as _audit
-from .config import (ALL_TERMS, CATEGORIES, GOVERNANCE_TERMS, PROPOSED_TERMS,
-                     ConfigError, ContributorConfig)
+from .config import (
+    ALL_TERMS,
+    CATEGORIES,
+    GOVERNANCE_TERMS,
+    PROPOSED_TERMS,
+    ConfigError,
+    ContributorConfig,
+)
 from .derive import Status, assess
 from .observer import ObservationLog
 from .validate import Level, has_errors, validate_file, validate_tree
@@ -17,7 +23,8 @@ from .vocabulary import Vocabulary
 
 
 def _load_log(path: str) -> ObservationLog:
-    raw = json.load(open(path, encoding="utf-8"))
+    with open(path, encoding="utf-8") as fh:
+        raw = json.load(fh)
     raw.pop("review_latency_seconds", None)
     known = ObservationLog.__dataclass_fields__
     return ObservationLog(**{k: v for k, v in raw.items() if k in known})

@@ -9,7 +9,6 @@ import os
 import shutil
 
 import pytest
-
 from nsjepa_contrib import ContributorConfig, EntryBuilder, GateViolation, assess
 from nsjepa_contrib import audit as A
 from nsjepa_contrib.config import ConfigError
@@ -29,23 +28,23 @@ def repo(tmp_path):
 
 
 def attestation(**kw):
-    base = dict(
-        auditor_id="northwind-assurance", auditor_org="Northwind Assurance LLP",
-        deployment_id=DEPLOY, vendor_id="acme-civic", category="CAT-02",
-        issued_at="2026-09-25",
-        findings=[A.AuditFinding(
+    base = {
+        "auditor_id": "northwind-assurance", "auditor_org": "Northwind Assurance LLP",
+        "deployment_id": DEPLOY, "vendor_id": "acme-civic", "category": "CAT-02",
+        "issued_at": "2026-09-25",
+        "findings": [A.AuditFinding(
             term="data_residency_no_training", verdict="not_met",
             method="inspected training manifests for four model revisions")],
-        independence=A.Independence(engagement_reference="County PO-2026-4471"),
-    )
+        "independence": A.Independence(engagement_reference="County PO-2026-4471"),
+    }
     base.update(kw)
     return A.Attestation(**base)
 
 
 def cfg(root, **kw):
-    base = dict(vendor_id="acme-civic", product="p", deployment_id=DEPLOY,
-                category="CAT-02", dictionary_root=root,
-                governance_terms=["independent_governance_audit"])
+    base = {"vendor_id": "acme-civic", "product": "p", "deployment_id": DEPLOY,
+                "category": "CAT-02", "dictionary_root": root,
+                "governance_terms": ["independent_governance_audit"]}
     base.update(kw)
     return ContributorConfig(**base)
 
@@ -157,7 +156,7 @@ def test_audit_term_not_met_with_no_attestation(repo):
 
 
 def test_vendor_engaged_assessment_does_not_qualify(repo):
-    A.write_unchecked = None  # noqa: F841  (documents that write() would refuse this)
+    A.write_unchecked = None
     att = attestation()
     att.independence.engaged_by = "vendor"
     with pytest.raises(A.AttestationError, match="engaged and paid by the issuing body"):

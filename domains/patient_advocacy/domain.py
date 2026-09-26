@@ -1,4 +1,5 @@
-from core.schemas.domain import Domain, register, Principle, GroundingSpace
+from core.schemas.domain import Domain, GroundingSpace, Principle, register
+
 
 @register("patient_advocacy")
 class PatientAdvocacy(Domain):

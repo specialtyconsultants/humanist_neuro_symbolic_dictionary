@@ -31,6 +31,11 @@ from collections import defaultdict
 
 import yaml
 
+
+def _read_yaml(path):
+    with open(path, encoding="utf-8") as fh:
+        return yaml.safe_load(fh)
+
 BASELINE = "eval/convergence_baseline.json"
 PATTERNS = ("domains/*/entries/*.entry.yaml", "contrib/**/*.entry.yaml")
 
@@ -43,7 +48,7 @@ def collect(root: str = ".") -> dict:
 
     for pattern in PATTERNS:
         for path in sorted(glob.glob(os.path.join(root, pattern), recursive=True)):
-            e = yaml.safe_load(open(path, encoding="utf-8"))
+            e = _read_yaml(path)
             if not e or not (e.get("causal") or {}).get("edges"):
                 continue
             entries += 1
@@ -52,7 +57,7 @@ def collect(root: str = ".") -> dict:
                 reg = os.path.join(root, "domains", domain, "vocab", "nodes.yaml")
                 names: set[str] = set()
                 if os.path.exists(reg):
-                    data = yaml.safe_load(open(reg, encoding="utf-8")) or {}
+                    data = _read_yaml(reg) or {}
                     for name, spec in (data.get("nodes") or {}).items():
                         names.add(name)
                         names.update((spec or {}).get("aliases", []) or [])
@@ -134,7 +139,8 @@ def main() -> int:
         print(f"\nno baseline at {BASELINE}; run --update-baseline")
         return 1
 
-    base = json.load(open(path, encoding="utf-8"))
+    with open(path, encoding="utf-8") as fh:
+        base = json.load(fh)
     lost = sorted(set(base.get("shared", [])) - set(m["shared"]))
     lost_cross = sorted(set(base.get("cross_domain", [])) - set(m["cross_domain"]))
     fail = False

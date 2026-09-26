@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import time
 from collections import OrderedDict
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 
 #: Bound on in-flight correlation refs. A long-running deployment must not grow
 #: this map without limit. Overflow is counted and reported, never silently

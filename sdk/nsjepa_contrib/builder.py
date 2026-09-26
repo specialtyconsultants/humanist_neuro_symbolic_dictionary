@@ -23,12 +23,11 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 
-import yaml
-
+from . import audit as _audit
+from ._io import read_yaml
 from .config import ALL_TERMS, ContributorConfig
 from .derive import Status, TermFinding, assess, derive_edges
 from .observer import ObservationLog
-from . import audit as _audit
 from .provenance import ProvenanceError, check_confidence, parse
 from .vocabulary import Vocabulary
 
@@ -48,7 +47,7 @@ class DomainNorms:
     subfixes: set[str]
 
     @classmethod
-    def load(cls, domain: str, root: str = ".") -> "DomainNorms":
+    def load(cls, domain: str, root: str = ".") -> DomainNorms:
         base = os.path.join(root, "domains", domain)
         def y(*p):
             path = os.path.join(base, *p)
@@ -59,7 +58,7 @@ class DomainNorms:
                     f"against that domain's real norms, not against a copy "
                     f"shipped inside the vendor product."
                 )
-            return yaml.safe_load(open(path, encoding="utf-8")) or {}
+            return read_yaml(path) or {}
         pr = y("norms", "principles.yaml")["principles"]
         rules = y("norms", "rules.yaml")["warrants"]
         gl = y("glyphs", "vocab.yaml")
@@ -288,7 +287,7 @@ class EntryBuilder:
                 check_confidence(e["provenance"], e["confidence"])
             except ProvenanceError as exc:
                 raise GateViolation(f"edge {e['cause']} -> {e['effect']}: {exc}") from exc
-            tier, ident, section = parse(e["provenance"])
+            tier, _ident, section = parse(e["provenance"])
             tiers.append(tier)
             if section == "needs_grounding":
                 r.needs_grounding.append(e["provenance"])
@@ -392,8 +391,8 @@ class EntryBuilder:
             finding = by_term.get(term)
             if finding is None:
                 r.withdrawn_warrants.append(
-                    (term, "no observation window assessed it; call "
-                           "`from_observations()` or drop the claim"))
+                    (term, ("no observation window assessed it; call "
+                            "`from_observations()` or drop the claim")))
                 continue
             if finding.status is not Status.MET:
                 r.withdrawn_warrants.append(

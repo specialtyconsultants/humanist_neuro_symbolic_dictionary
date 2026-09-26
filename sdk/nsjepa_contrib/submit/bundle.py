@@ -45,7 +45,8 @@ def pack(entry_paths: list[str], out_path: str, *, vendor_id: str,
     files = []
     payload: dict[str, bytes] = {}
     for p in entry_paths:
-        data = open(p, "rb").read()
+        with open(p, "rb") as fh:
+            data = fh.read()
         arc = os.path.relpath(p, root).replace(os.sep, "/")
         payload[arc] = data
         files.append({"path": arc, "sha256": _sha256(data), "bytes": len(data)})

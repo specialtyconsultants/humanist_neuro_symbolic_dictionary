@@ -16,7 +16,7 @@ import difflib
 import os
 from dataclasses import dataclass, field
 
-import yaml
+from ._io import read_yaml
 
 
 @dataclass
@@ -40,14 +40,14 @@ class Vocabulary:
     _gloss: dict[str, str] = field(default_factory=dict)
 
     @classmethod
-    def load(cls, domain: str, root: str = ".") -> "Vocabulary":
+    def load(cls, domain: str, root: str = ".") -> Vocabulary:
         path = os.path.join(root, "domains", domain, "vocab", "nodes.yaml")
         if not os.path.exists(path):
             # A domain with no registry yet: everything is unregistered, which
             # `validate` reports rather than rejects. A new domain should not be
             # blocked from its first contribution by a file it has not written.
             return cls(domain=domain)
-        data = yaml.safe_load(open(path, encoding="utf-8")) or {}
+        data = read_yaml(path) or {}
         v = cls(domain=domain, separator=data.get("time_index_separator", "@"))
         for name, spec in (data.get("nodes") or {}).items():
             v._canonical[name] = name
